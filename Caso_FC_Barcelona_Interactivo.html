@@ -154,6 +154,13 @@ svg text{font-family:system-ui,sans-serif}
 .printcopy{display:none}
 footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
 
+.ptag{display:inline-block;font-size:11.5px;border-radius:999px;padding:1px 9px;margin-left:6px;white-space:nowrap;font-weight:600;vertical-align:middle}
+.ptag.Cultura{background:#fde1ec;color:#6d0029}
+.ptag.Gobernanza{background:#dce8fb;color:#0a336b}
+.ptag.Tecnología{background:#e8ebf0;color:#2a3140}
+.ptag.Proyecto{background:#fff0bd;color:#5a4500}
+.rkrow{display:flex;gap:8px;align-items:center;margin:6px 0}
+.rkrow select{max-width:90px}
 @media print{
   @page{size:A4;margin:14mm}
   body{background:#fff;font-size:11.5px}
@@ -235,7 +242,7 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
 
   <div class="card q">
     <h3><span class="qn">P3</span> Adivinen las cifras</h3>
-    <p>Sin buscar nada: ¿qué tan avanzado estaba el club en su transformación de datos a mediados de 2019? En la sección 4 vemos qué tan cerca estuvieron.</p>
+    <p>Sin buscar nada: ¿qué tan avanzado estaba el club en su transformación de datos a mediados de 2019? En la Fase 5 vemos qué tan cerca estuvieron.</p>
     <div class="grid3">
       <div>
         <label class="fl" for="e1">Fuentes de datos <b>externas</b> integradas a finales de 2018 (al inicio del plan eran 5)</label>
@@ -249,6 +256,19 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
         <label class="fl" for="e3">N.º de <b>dashboards</b> que mantenía el equipo de datos</label>
         <input type="number" id="e3" data-k="e3" data-req data-pre min="0" max="1000" placeholder="N.º de dashboards">
       </div>
+    </div>
+  </div>
+
+  <div class="card q">
+    <h3><span class="qn">P4</span> ¿Qué pesa más para volverse una organización guiada por datos?</h3>
+    <p>Ordenen estos tres factores de <b>1 (el que más pesa) a 3 (el que menos)</b>. Cada número se usa una sola vez.</p>
+    <div class="grid3">
+      <div><b>Tecnología</b><div class="muted" style="font-size:13px">Plataformas, nube, modelos, herramientas.</div>
+        <select id="rk1_tec" data-k="rk1_tec" data-req data-pre aria-label="Posición de Tecnología"><option value=""></option><option>1</option><option>2</option><option>3</option></select></div>
+      <div><b>Gobernanza de datos</b><div class="muted" style="font-size:13px">Calidad, propiedad, KPIs, roles, cumplimiento.</div>
+        <select id="rk1_gob" data-k="rk1_gob" data-req data-pre aria-label="Posición de Gobernanza"><option value=""></option><option>1</option><option>2</option><option>3</option></select></div>
+      <div><b>Cultura de datos</b><div class="muted" style="font-size:13px">Decidir con datos, capacidades, incentivos, liderazgo.</div>
+        <select id="rk1_cul" data-k="rk1_cul" data-req data-pre aria-label="Posición de Cultura"><option value=""></option><option>1</option><option>2</option><option>3</option></select></div>
     </div>
   </div>
 
@@ -292,14 +312,30 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
 
   <!-- Q2 -->
   <div class="card q" id="q2">
-    <h3><span class="qn">2</span> Modelo de negocio tradicional (Business Model Canvas)</h3>
-    <p>Toquen una ficha y luego el bloque del canvas donde corresponde. Pueden tocar una etiqueta ya colocada para devolverla. Algunas fichas pueden ser válidas en más de un bloque.</p>
-    <div class="bank" id="bmcbank"></div>
-    <div class="bmc" id="bmcgrid" style="margin-top:12px"></div>
-    <div class="row" style="margin-top:10px"><button id="bmcverify">Verificar contra el caso</button><span class="score" id="bmcscore"></span></div>
-    <p class="muted" id="bmcnote"></p>
-    <label class="fl" for="q2a">Síntesis del modelo: ¿qué parte del canvas es más fuerte, cuál es más débil y por qué?</label>
+    <h3><span class="qn">2</span> Modelo de negocio tradicional (Business Model Canvas) y datos</h3>
+    <p>Describan cada bloque en una o dos líneas, con evidencia del caso. En la tercera columna indiquen <b>qué dato genera ese bloque</b>. No hace falta decidir en qué casilla “cae” un elemento: lo que cuenta es la evidencia.</p>
+    <div class="tscroll"><table id="bmctbl"></table></div>
+    <label class="fl" for="q2a">Síntesis: ¿qué bloque genera más datos valiosos y cuál genera casi ninguno hoy?</label>
     <textarea id="q2a" data-k="q2a" data-req></textarea>
+  </div>
+
+  <div class="card q" id="q2b">
+    <h3><span class="qn">2B</span> Mapa de datos propios: ¿de quién son los datos del negocio?</h3>
+    <div class="grid3" style="margin:6px 0 10px">
+      <div class="evi"><b>First-party (propio).</b> El club lo captura directo de su fan o de su operación, con consentimiento.</div>
+      <div class="evi"><b>Second-party (compartido).</b> Es el first-party de un socio comercial y llega al club por contrato.</div>
+      <div class="evi"><b>Third-party (de terceros).</b> Lo controla otro (plataformas, medios, la liga). El club lo ve, pero no es suyo.</div>
+    </div>
+    <p class="muted">El caso no usa estos términos. Los traemos de marketing analytics para leer el problema de propiedad de datos que sí describe.</p>
+    <p>Toquen una ficha y luego la columna donde la ubican. Pueden devolver una tocando su etiqueta.</p>
+    <div class="bank" id="fpdbank"></div>
+    <div class="grid3" id="fpdgrid" style="margin-top:12px"></div>
+    <div class="row" style="margin-top:10px"><button id="fpdverify">Verificar contra el caso</button><span class="score" id="fpdscore"></span></div>
+    <p class="muted" id="fpdnote"></p>
+    <label class="fl" for="q2b1">¿Qué dato de tercero debería convertirse primero en propio y con qué mecanismo concreto?</label>
+    <textarea id="q2b1" data-k="q2b1" data-req></textarea>
+    <label class="fl" for="q2b2">¿Por qué el dato propio permite crecer más rápido que el de terceros? Den un argumento de negocio y uno de privacidad (GDPR).</label>
+    <textarea id="q2b2" data-k="q2b2" data-req></textarea>
   </div>
 
   <!-- Q3 -->
@@ -332,7 +368,7 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
     <p class="muted">Escenario hipotético con sus supuestos; no son cifras del caso.</p>
     <div class="grid2">
       <div>
-        <div class="sl"><label for="f1">% de los 300M de fans identificados y contactables</label><b id="f1v"></b><input type="range" id="f1" data-k="f1" min="0.1" max="20" step="0.1" value="1" style="grid-column:1/3"></div>
+        <div class="sl"><label for="f1">% de los 300M de fans que pasan a ser contacto propio con consentimiento</label><b id="f1v"></b><input type="range" id="f1" data-k="f1" min="0.1" max="20" step="0.1" value="1" style="grid-column:1/3"></div>
         <div class="sl"><label for="f2">% de los contactables que compran algo al año</label><b id="f2v"></b><input type="range" id="f2" data-k="f2" min="1" max="40" step="1" value="10" style="grid-column:1/3"></div>
         <div class="sl"><label for="f3">Gasto promedio anual por comprador (€)</label><b id="f3v"></b><input type="range" id="f3" data-k="f3" min="5" max="250" step="5" value="60" style="grid-column:1/3"></div>
       </div>
@@ -373,11 +409,40 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
     <h3><span class="qn">7</span> Retos de gobernanza de datos y cómo solucionarlos</h3>
     <p><b>Progreso reportado en el caso</b></p>
     <div class="grid3" id="govbars"></div>
+    <div class="card" style="margin:14px 0;background:var(--soft)">
+      <h3 style="font-size:16px">El eslabón más débil: ¿cuánto dato llega a influir una decisión?</h3>
+      <p class="muted">Modelo didáctico, no es una cifra del caso. Un dato solo ayuda si está disponible, es correcto y se usa; los tres factores se multiplican. El valor inicial de disponibilidad toma como referencia el 40% de datos automatizados que reporta el caso.</p>
+      <div class="grid2">
+        <div>
+          <div class="sl"><label for="g1">Disponible (llega a tiempo a quien decide)</label><b id="g1v"></b><input type="range" id="g1" data-k="g1" min="0" max="100" step="5" value="40" style="grid-column:1/3"></div>
+          <div class="sl"><label for="g2">Correcto (calidad y definiciones claras)</label><b id="g2v"></b><input type="range" id="g2" data-k="g2" min="0" max="100" step="5" value="60" style="grid-column:1/3"></div>
+          <div class="sl"><label for="g3">Usado (cambia una decisión real)</label><b id="g3v"></b><input type="range" id="g3" data-k="g3" min="0" max="100" step="5" value="50" style="grid-column:1/3"></div>
+        </div>
+        <div>
+          <div class="kpi"><small>Datos que influyen decisiones</small><div class="big" id="gres"></div><div class="bar" style="margin-top:6px"><i id="gbar" class="g" style="width:0"></i></div></div>
+          <p id="gtxt" class="muted" style="margin-top:8px"></p>
+        </div>
+      </div>
+      <label class="fl" for="q7g">Con este modelo: ¿conviene doblar la inversión en tecnología, en calidad o en adopción? ¿Qué dice eso sobre gobernanza y cultura?</label>
+      <textarea id="q7g" data-k="q7g" data-req></textarea>
+    </div>
     <p style="margin-top:14px">Para cada área: califiquen la gravedad del reto <b>0 (resuelto) a 3 (crítico)</b>, citen evidencia y propongan una solución.</p>
     <div class="tscroll"><table id="govtbl"></table></div>
     <h3 style="font-size:16px;margin-top:18px">Mapa de propiedad de datos</h3>
     <p class="muted">¿Quién controla hoy estos datos y qué mecanismo usarían para recuperar acceso?</p>
     <div class="tscroll"><table id="owntbl"></table></div>
+  </div>
+
+  <!-- Q7B -->
+  <div class="card q" id="q7b">
+    <h3><span class="qn">7B</span> Proyectos clave de datos: hoja de ruta de 36 meses</h3>
+    <p>Ubiquen cada proyecto en el horizonte en que lo harían. No hay una única respuesta: se evalúa el orden y las dependencias que justifican.</p>
+    <div class="hint">Pregunta guía: ¿qué proyecto de personalización o de IA puede funcionar sin gobernanza ni datos propios?</div>
+    <div class="bank" id="projbank"></div>
+    <div class="grid3" id="projgrid" style="margin-top:12px"></div>
+    <div class="row" style="margin-top:10px"><span class="score" id="projscore"></span></div>
+    <label class="fl" for="q7ba">Expliquen las dependencias de su hoja de ruta: ¿qué tiene que existir antes de qué, y por qué?</label>
+    <textarea id="q7ba" data-k="q7ba" data-req></textarea>
   </div>
 
   <!-- Q8 -->
@@ -399,6 +464,7 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
     <p>Elijan <b>los 3 mecanismos</b> que más aseguran que la innovación ocurra (máximo 3) y justifiquen.</p>
     <div class="opts" id="mechs"></div>
     <div id="mechcount" class="muted"></div>
+    <div id="mechbal" class="muted"></div>
     <label class="fl" for="q9a">Justifiquen su top 3 y expliquen cómo evitarían la burocratización que advierte Mateu.</label>
     <textarea id="q9a" data-k="q9a" data-req></textarea>
   </div>
@@ -457,6 +523,21 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
   </div>
 
   <div class="card q">
+    <h3>¿Cambió su ranking? Tecnología, gobernanza o cultura</h3>
+    <div class="grid2">
+      <div><b>Al inicio (bloqueado)</b><div id="rk1show" class="evi"></div></div>
+      <div><b>Ahora (1 = el que más pesa)</b>
+        <div class="rkrow"><select id="rk5_tec" data-k="rk5_tec" data-req aria-label="Ahora Tecnología"><option value=""></option><option>1</option><option>2</option><option>3</option></select> Tecnología</div>
+        <div class="rkrow"><select id="rk5_gob" data-k="rk5_gob" data-req aria-label="Ahora Gobernanza"><option value=""></option><option>1</option><option>2</option><option>3</option></select> Gobernanza de datos</div>
+        <div class="rkrow"><select id="rk5_cul" data-k="rk5_cul" data-req aria-label="Ahora Cultura"><option value=""></option><option>1</option><option>2</option><option>3</option></select> Cultura de datos</div>
+      </div>
+    </div>
+    <div id="rkdelta" class="muted"></div>
+    <label class="fl" for="rkwhy">¿Qué evidencia del caso los hizo cambiar su ranking, o mantenerlo?</label>
+    <textarea id="rkwhy" data-k="rkwhy" data-req></textarea>
+  </div>
+
+  <div class="card q">
     <h3>Preguntas de reflexión</h3>
     <label class="fl" for="ra">a) ¿En qué acertaron?</label><textarea id="ra" data-k="ra" data-req></textarea>
     <label class="fl" for="rb">b) ¿En qué se equivocaron o qué no habían considerado?</label><textarea id="rb" data-k="rb" data-req></textarea>
@@ -464,6 +545,7 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
     <label class="fl" for="rd">d) ¿Qué reto de datos casi pasan por alto en su plan inicial (por ejemplo, propiedad de datos de terceros)?</label><textarea id="rd" data-k="rd" data-req></textarea>
     <label class="fl" for="re">e) Comparación con Starbucks Deep Brew: ¿qué hizo EDAP que el Barça intentó con su data warehouse, NEXUS y los tres niveles? ¿Qué le falta al Barça?</label><textarea id="re" data-k="re" data-req></textarea>
     <label class="fl" for="rf">f) Espejo: ¿qué de este caso se parece a su propia empresa o institución? Den una evidencia concreta (sin nombrar a la empresa).</label><textarea id="rf" data-k="rf" data-req></textarea>
+    <label class="fl" for="rg">g) Gobernanza y cultura: si el club solo pudiera financiar una de las dos primero, ¿cuál sería? ¿Qué le pasa a un proyecto de IA o de personalización sin la otra? Conecten con lo que vieron de Starbucks y EDAP.</label><textarea id="rg" data-k="rg" data-req></textarea>
   </div>
   </div>
 </section>
@@ -509,43 +591,35 @@ const BMC=[
  ["rel","Relaciones con el cliente",""],["act","Actividades clave",""],["rec","Recursos clave",""],["soc","Socios clave",""],
  ["cos","Estructura de costos","span2"],["ing","Fuentes de ingresos","span2"]
 ];
-const BMCCHIPS=[
- ["Éxito deportivo y estilo propio (“Barça DNA”)",["vp"]],
- ["Misión: ser la institución deportiva más admirada, querida y global",["vp"]],
- ["141.846 socios (2018/19)",["seg"]],
- ["300M+ de fans en redes sociales",["seg"]],
- ["Visitantes del museo y del complejo (6M al año)",["seg"]],
- ["Niños de 50 escuelas de fútbol y de la Fundación",["seg"]],
- ["Camp Nou (99.000 plazas)",["can","rec"]],
- ["Tiendas propias y licenciadas (BLM)",["can"]],
- ["Redes sociales (Facebook, Instagram)",["can"]],
- ["Web, app y e-commerce",["can"]],
- ["Transmisión por TV (derechos audiovisuales)",["can"]],
- ["Los socios eligen a la directiva cada 6 años",["rel"]],
- ["Más de 1.200 peñas en el mundo",["rel"]],
- ["CRM de fans (triplicó contactos)",["rel"]],
- ["Experiencia en estadio y “smart stadium”",["rel"]],
- ["Competir con 6 equipos profesionales en 5 deportes",["act"]],
- ["Formar jugadores en La Masía",["act"]],
- ["Analizar rendimiento con GPS y video",["act"]],
- ["Gestionar licencias y merchandising",["act"]],
- ["Jugadores estrella (Messi, Xavi, Iniesta)",["rec"]],
- ["Marca Barça",["rec"]],
- ["La Masía (cantera)",["rec"]],
- ["Nike (tiendas y licencias)",["soc"]],
- ["LaLiga (AVET y torniquetes)",["soc"]],
- ["Telefónica y Mediapro (derechos audiovisuales)",["soc"]],
- ["Universidades (análisis de datos de La Masía)",["soc"]],
- ["Escuelas de fútbol franquiciadas",["soc"]],
- ["Salarios deportivos y traspasos (la mayor partida)",["cos"]],
- ["Gastos de gestión",["cos"]],
- ["Espai Barça (inversión de €360M)",["cos"]],
- ["Marketing y patrocinio (≈ €325M en 2018/19)",["ing"]],
- ["Derechos de TV / media (≈ €300M en 2018/19)",["ing"]],
- ["Estadio / día de partido (≈ €195M)",["ing"]],
- ["Cuotas de socios (≈ €18M)",["ing"]],
- ["Traspasos de jugadores",["ing"]]
+const BMCH={vp:"¿Qué ofrece?",seg:"¿A quién le vende?",can:"¿Por dónde llega?",rel:"¿Cómo se relaciona?",act:"¿Qué hace?",rec:"¿Qué necesita?",soc:"¿Con quién se alía?",cos:"¿Qué le cuesta?",ing:"¿Cómo gana?"};
+const FPDCHIPS=[
+ ["Perfil y compras de socios (abonos y app de socios)",["p1"]],
+ ["Compras en la tienda online (e-commerce)",["p1"]],
+ ["Navegación en la web y la app del club",["p1"]],
+ ["CRM de fans (contactos que el club registró)",["p1"]],
+ ["Encuestas y observación de socios",["p1"]],
+ ["Rendimiento de jugadores (GPS, Wimu Pro, video)",["p1"]],
+ ["Ventas de tiendas licenciadas y licenciatarios (BLM)",["p2","p3"]],
+ ["Datos de las escuelas de fútbol franquiciadas",["p2","p3"]],
+ ["Servicios tercerizados (limpieza, catering)",["p3","p2"]],
+ ["Control de acceso al estadio (AVET de LaLiga)",["p3","p2"]],
+ ["Audiencias de TV por partido (Telefónica, Mediapro)",["p3"]],
+ ["Seguidores y métricas en Facebook e Instagram",["p3"]],
+ ["Estudios de marca y paneles externos",["p3"]]
 ];
+const FPDBLOCKS=[["p1","Propio (first-party)",""],["p2","Compartido (second-party)",""],["p3","De terceros (third-party)",""]];
+const PROJCHIPS=[
+ ["Data warehouse e integración de fuentes",[]],
+ ["Catálogo de datos y KPIs transversales",[]],
+ ["Dueños de datos y comité de gobierno",[]],
+ ["Cumplimiento GDPR y gestión de consentimiento",[]],
+ ["CRM 360 del fan (perfil único)",[]],
+ ["Cláusulas de datos en renovaciones de contrato",[]],
+ ["Formación en alfabetización de datos (áreas y directivos)",[]],
+ ["Wifi del estadio y smart stadium (Espai Barça)",[]],
+ ["Segmentación y personalización con IA",[]]
+];
+const PROJBLOCKS=[["h1","Primeros 3 meses",""],["h2","3 a 12 meses",""],["h3","12 a 36 meses",""]];
 
 const ARCH=[
  ["Members (socios)","Gestiona abonos, liberación de asientos y servicios a socios y aficionados."],
@@ -558,12 +632,12 @@ const ARCH=[
 const RADAR=[
  ["Perfil único del fan","Romeu quiere una “visión singularizada del fan”; en 2019 solo había una fracción de contactos."],
  ["Plataformas e integración","Silos legados; plan de reducir plataformas y usar un proveedor (NEXUS)."],
- ["Propiedad y acceso a datos","Datos en manos de Facebook, Telefónica/Mediapro, Nike, franquicias."],
- ["Decisiones basadas en datos","Dashboards en 3 niveles, KPIs transversales, aún con intuición en muchas áreas."],
+ ["Datos propios (first-party)","Pocos contactos propios frente a 300M de fans; mucho dato en plataformas ajenas."],
+ ["Gobernanza de datos","Data Manager desde 2016, GDPR, calidad y KPIs todavía en definición."],
+ ["Cultura de decisión con datos","Dashboards y analistas, pero muchas decisiones aún por intuición."],
  ["Monetización digital","Digital era de las áreas menos maduras; e-commerce incipiente."],
  ["Analítica deportiva","Wimu Pro (20.000 datos/s), GPS y video: el área más avanzada."]
 ];
-
 const DECS=[
  ["¿Hay relación entre la alineación del equipo y la audiencia de TV del partido?"],
  ["¿Qué nacionalidades están más dispuestas a comprar merchandising?"],
@@ -623,18 +697,21 @@ const SILOS=[
 const TECHOPT=["—","Plataforma única","Data warehouse","Dashboards","APIs","Cláusulas contractuales","Reuniones/comunidad","IA / segmentación"];
 
 const MECHS=[
- "Dashboards con KPIs transversales definidos por consenso (¿qué es un buen día de partido?)",
- "Incluir integración de datos como condición en la renovación de contratos",
- "Un analista con perfil de negocio en cada área",
- "Reuniones periódicas entre analistas de distintas áreas",
- "Alianzas con universidades y centros externos",
- "Presupuestos multi-temporada (no solo por temporada)",
- "Plataforma tecnológica única y modular",
- "Pilotos en La Masía antes de llevarlos al primer equipo",
- "Un departamento de Business Analytics con mandato transversal",
- "Cuota de ingresos digitales como meta visible de la directiva"
+ ["Dashboards con KPIs transversales definidos por consenso (¿qué es un buen día de partido?)","Gobernanza"],
+ ["Incluir integración de datos como condición en la renovación de contratos","Gobernanza"],
+ ["Un analista con perfil de negocio en cada área","Cultura"],
+ ["Reuniones periódicas entre analistas de distintas áreas","Cultura"],
+ ["Alianzas con universidades y centros externos","Cultura"],
+ ["Presupuestos multi-temporada (no solo por temporada)","Gobernanza"],
+ ["Plataforma tecnológica única y modular","Tecnología"],
+ ["Pilotos en La Masía antes de llevarlos al primer equipo","Proyecto"],
+ ["Un departamento de Business Analytics con mandato transversal","Gobernanza"],
+ ["Cuota de ingresos digitales como meta visible de la directiva","Cultura"],
+ ["Un comité de gobierno de datos con dueños por dominio","Gobernanza"],
+ ["Programa de alfabetización de datos para directivos y áreas","Cultura"],
+ ["Un proyecto estrella de fan 360 con resultados visibles en 12 meses","Proyecto"]
 ];
-const INIT=["Gobierno y calidad de datos","Perfil único del fan (CRM 360)","Smart stadium / Espai Barça","E-commerce y licencias","Cumplimiento GDPR y privacidad"];
+const INIT=["Gobierno y calidad de datos","Perfil único del fan (CRM 360)","Smart stadium / Espai Barça","E-commerce y licencias","Cumplimiento GDPR y privacidad","Cultura de datos y formación"];
 const ROLES=["Presidente y Junta","CEO / Comité","Estrategia (Mateu)","TI / Data Manager (Pagés)","Business Analytics (Díez)","Digital (Romeu)","Analistas de área"];
 
 /* ---------- binding of simple fields ---------- */
@@ -661,8 +738,8 @@ function syncPrint(){
 function progress(){
   const reqs=$$('[data-req]');let done=0;
   reqs.forEach(r=>{if(String(r.value||'').trim()!=='')done++});
-  const extra=[S.p2?1:0,S.verified.bmc?1:0,S.verified.org?1:0,S.mech.length===3?1:0];
-  const total=reqs.length+4, d=done+extra.reduce((a,b)=>a+b,0);
+  const extra=[S.p2?1:0,S.verified.fpd?1:0,S.verified.org?1:0,S.mech.length===3?1:0,(S.assign.proj&&Object.keys(S.assign.proj).length===PROJCHIPS.length)?1:0];
+  const total=reqs.length+5, d=done+extra.reduce((a,b)=>a+b,0);
   const p=Math.round(100*d/total);
   $('#pct').textContent=p+'%';$('#fill').style.width=p+'%';
 }
@@ -679,13 +756,15 @@ function initPre(){
   const upd=()=>e2v.textContent=e2.value+'%';
   e2.addEventListener('input',()=>{S.f.e2touched=1;upd()});upd();
   $('#lockbtn').addEventListener('click',()=>{
-    const miss=['p1','p2why','e1','e3'].filter(k=>!String($('#'+k).value).trim());
-    if(miss.length||!S.p2){$('#lockmsg').innerHTML='<span class="warn">Falta completar P1, P2 (opción y línea) y las cifras de P3.</span>';return}
+    const miss=['p1','p2why','e1','e3','rk1_tec','rk1_gob','rk1_cul'].filter(k=>!String($('#'+k).value).trim());
+    if(miss.length||!S.p2){$('#lockmsg').innerHTML='<span class="warn">Falta completar P1, P2 (opción y línea), las cifras de P3 y el ranking de P4.</span>';return}
+    const rk=['rk1_tec','rk1_gob','rk1_cul'].map(k=>$('#'+k).value);
+    if(new Set(rk).size<3){$('#lockmsg').innerHTML='<span class="warn">En P4 cada número (1, 2, 3) se usa una sola vez.</span>';return}
     S.f.e2=$('#e2').value;S.locked=true;S.lockedAt=new Date().toLocaleString('es-GT');save();applyLock();
   });
 }
 function applyLock(){
-  $$('[data-pre]').forEach(el=>{el.readOnly=S.locked;if(el.type==='range'||el.type==='radio')el.disabled=S.locked});
+  $$('[data-pre]').forEach(el=>{el.readOnly=S.locked;if(el.type==='range'||el.type==='radio'||el.tagName==='SELECT')el.disabled=S.locked});
   $$('input[name=p2]').forEach(r=>r.disabled=S.locked);
   const b=$('#lockbtn');b.disabled=S.locked;
   $('#lockmsg').innerHTML=S.locked?`<span class="lockedmsg">✔ Respuestas bloqueadas · ${esc(S.lockedAt||'')}</span>`:'Después de bloquear ya no podrán editarlas.';
@@ -733,6 +812,7 @@ function chipAssign(cfg){
     $(gridEl).innerHTML=blocks.map(b=>`<div class="drop ${b[2]||''} ${classOf?classOf(b):''}" data-b="${b[0]}"><h4>${esc(b[1])}</h4>${Object.entries(A).filter(([i,bid])=>bid===b[0]).map(([i])=>{
       const c=chips[i];const v=S.verified[id];const ok=c[1].includes(b[0]);
       return `<span class="tag ${v?(ok?'ok':'no'):''}" data-t="${i}">${v?(ok?'✔ ':'✘ '):''}${esc(c[0])}${v&&!ok?`<small>Va en: ${c[1].map(label).join(' / ')}</small>`:''}</span>`}).join('')}</div>`).join('');
+    if(cfg.free&&scoreEl)$(scoreEl).textContent=Object.keys(A).length+' / '+chips.length+' colocadas';
     progress();
   }
   $(bankEl).addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;S.sel={id,i:+c.dataset.i};render()});
@@ -743,7 +823,7 @@ function chipAssign(cfg){
     const d=e.target.closest('.drop');
     if(d&&S.sel&&S.sel.id===id){A[S.sel.i]=d.dataset.b;S.sel=null;S.verified[id]=false;$(scoreEl).textContent='';save();render()}
   });
-  $(verifyBtn).addEventListener('click',()=>{
+  if(verifyBtn)$(verifyBtn).addEventListener('click',()=>{
     const n=Object.keys(A).length;
     if(n<chips.length){$(scoreEl).innerHTML=`<span class="warn">Coloquen las ${chips.length} fichas (van ${n}).</span>`;return}
     S.verified[id]=true;save();render();
@@ -755,6 +835,32 @@ function chipAssign(cfg){
   if(S.verified[id]){const ok=Object.entries(A).filter(([i,b])=>chips[i][1].includes(b)).length;$(scoreEl).textContent=`${ok} / ${chips.length} correctas`}
 }
 
+/* ---------- Q2 ---------- */
+function initQ2(){
+  $('#bmctbl').innerHTML='<tr><th style="width:17%">Bloque</th><th>Cómo lo hace el club (evidencia del caso)</th><th style="width:30%">¿Qué dato genera?</th></tr>'+BMC.map((b,i)=>`<tr><td><b>${esc(b[1])}</b><div class="muted" style="font-size:12.5px">${BMCH[b[0]]}</div></td><td><textarea data-k="bm${i}" data-req style="min-height:52px"></textarea></td><td><textarea data-k="bd${i}" data-req style="min-height:52px" placeholder="Ej. quién, qué compra, cuándo"></textarea></td></tr>`).join('');
+}
+/* ---------- Q7 simulador eslabón ---------- */
+function initGsim(){
+  const upd=()=>{
+    const v=[1,2,3].map(i=>+$('#g'+i).value);v.forEach((x,i)=>$('#g'+(i+1)+'v').textContent=x+'%');
+    const r=v[0]*v[1]*v[2]/10000;
+    $('#gres').textContent=r.toFixed(1)+'%';$('#gbar').style.width=Math.min(100,r)+'%';
+    const names=['disponibilidad','calidad','uso'];
+    const mi=v.indexOf(Math.min(...v)),ma=v.indexOf(Math.max(...v));
+    const up=(i)=>{const w=v.slice();w[i]=Math.min(100,w[i]+20);return w[0]*w[1]*w[2]/10000};
+    $('#gtxt').innerHTML=`Eslabón más débil: <b>${names[mi]}</b> (${v[mi]}%). Subir 20 puntos ahí lleva el resultado a <b>${up(mi).toFixed(1)}%</b>; subir 20 puntos en ${names[ma]}, el más fuerte, solo a <b>${up(ma).toFixed(1)}%</b>.`;
+  };
+  [1,2,3].forEach(i=>$('#g'+i).addEventListener('input',upd));upd();window._gsim=upd;
+}
+/* ---------- ranking final ---------- */
+const RKN={tec:'Tecnología',gob:'Gobernanza de datos',cul:'Cultura de datos'};
+function rkRender(){
+  const ini=['tec','gob','cul'].map(k=>[k,S.f['rk1_'+k]]).filter(x=>x[1]).sort((a,b)=>a[1]-b[1]);
+  $('#rk1show').innerHTML=ini.length?ini.map(x=>`${x[1]}. ${RKN[x[0]]}`).join('<br>'):'—';
+  const d=['tec','gob','cul'].map(k=>{const a=+S.f['rk1_'+k],b=+S.f['rk5_'+k];if(!a||!b)return'';
+    const t=b<a?`▲ subió ${a-b}`:b>a?`▼ bajó ${b-a}`:'= sin cambio';return `${RKN[k]}: ${a} → ${b} (${t})`}).filter(Boolean);
+  $('#rkdelta').innerHTML=d.join(' · ');
+}
 /* ---------- Q3 ---------- */
 function initQ3(){
   $('#archacc').innerHTML=ARCH.map((a,i)=>`<details ${S.f['a'+i+'x']||S.f['a'+i+'y']?'open':''}><summary>${esc(a[0])}</summary><p class="muted">${esc(a[1])}</p>
@@ -810,7 +916,7 @@ function initQ6(){
 /* ---------- Q7 ---------- */
 function initQ7(){
   $('#govbars').innerHTML=[["Fuentes externas integradas",5,49,"5 → 49 (2018)",49/60],["Datos automatizados",0,40,"40% (meta 2021: 100%)",.40],["Ciclo de encuesta trimestral",45,10,"45 días → meta 10",10/45]].map(b=>`<div class="kpi"><small>${b[0]}</small><div style="font-weight:700">${b[3]}</div><div class="bar" style="margin-top:6px"><i class="${b[0].startsWith('Ciclo')?'g':''}" style="width:${Math.round(b[4]*100)}%"></i></div></div>`).join('');
-  $('#govtbl').innerHTML='<tr><th>Área</th><th>Evidencia del caso</th><th style="width:90px">Gravedad 0–3</th><th>Cómo lo solucionarían</th></tr>'+GOV.map((g,i)=>`<tr><td><b>${g[0]}</b></td><td class="muted">${esc(g[1])}</td><td><select data-k="gv${i}" data-req>${['','0','1','2','3'].map(o=>`<option>${o}</option>`).join('')}</select></td><td><textarea data-k="gs${i}" data-req></textarea></td></tr>`).join('');
+  $('#govtbl').innerHTML='<tr><th>Área</th><th>Evidencia del caso</th><th style="width:90px">Gravedad 0–3</th><th>Cómo lo solucionarían</th><th style="width:150px">Dueño del dato (rol)</th></tr>'+GOV.map((g,i)=>`<tr><td><b>${g[0]}</b></td><td class="muted">${esc(g[1])}</td><td><select data-k="gv${i}" data-req>${['','0','1','2','3'].map(o=>`<option>${o}</option>`).join('')}</select></td><td><textarea data-k="gs${i}" data-req></textarea></td><td><select data-k="gr${i}" data-req>${["","Sin dueño definido",...ROLES].map(o=>`<option>${o}</option>`).join("")}</select></td></tr>`).join('');
   $('#owntbl').innerHTML='<tr><th>Dato</th><th>Quién lo controla</th><th>Estado hoy</th><th>Mecanismo para recuperar acceso</th></tr>'+OWN.map((o,i)=>`<tr><td>${esc(o[0])}</td><td>${esc(o[1])}</td><td><select data-k="os${i}">${['—',...OWNSTAT].map(x=>`<option>${x}</option>`).join('')}</select></td><td><select data-k="om${i}">${['—',...OWNMECH].map(x=>`<option>${x}</option>`).join('')}</select></td></tr>`).join('');
 }
 
@@ -823,8 +929,13 @@ function initQ8(){
 function initQ9(){
   const box=$('#mechs');
   const draw=()=>{
-    box.innerHTML=MECHS.map((m,i)=>`<label class="opt ${S.mech.includes(i)?'sel':''}"><input type="checkbox" value="${i}" ${S.mech.includes(i)?'checked':''}><span>${esc(m)}</span></label>`).join('');
-    $('#mechcount').innerHTML=S.mech.length===3?'<span class="good">3 / 3 elegidos</span>':`${S.mech.length} / 3 elegidos`;progress();
+    box.innerHTML=MECHS.map((m,i)=>`<label class="opt ${S.mech.includes(i)?'sel':''}"><input type="checkbox" value="${i}" ${S.mech.includes(i)?'checked':''}><span>${esc(m[0])}<span class="ptag ${m[1]}">${m[1]}</span></span></label>`).join('');
+    $('#mechcount').innerHTML=S.mech.length===3?'<span class="good">3 / 3 elegidos</span>':`${S.mech.length} / 3 elegidos`;
+    const c={};S.mech.forEach(i=>{c[MECHS[i][1]]=(c[MECHS[i][1]]||0)+1});
+    let t=Object.entries(c).map(([k,v])=>`${k}: ${v}`).join(' · ');
+    if(S.mech.length===3&&!(c.Cultura||c.Gobernanza))t+='<div class="warn">Ninguno de sus 3 mecanismos es de cultura o gobernanza. ¿Qué evidencia del caso lo justifica?</div>';
+    $('#mechbal').innerHTML=t?('Su top 3 cubre: '+t):'';
+    progress();
   };
   box.addEventListener('change',e=>{
     const i=+e.target.value;
@@ -866,6 +977,7 @@ function initDebate(){
 
 /* ---------- section 4 ---------- */
 function fillConclusion(){
+  rkRender();
   $('#rp1').textContent=S.f.p1||'';
   $('#rp2').textContent=(P2.find(p=>p[0]===S.p2)||[0,''])[1]+' — '+(S.f.p2why||'');
   const rows=[["Fuentes de datos externas integradas (2018)",S.f.e1,REAL.e1,''],["% de datos automatizado (mediados 2019)",S.f.e2touched||S.f.e2!==undefined?S.f.e2:'',REAL.e2,'%'],["Dashboards del equipo de datos",S.f.e3,REAL.e3,'+']];
@@ -901,9 +1013,9 @@ const GATE={2:'cuwtpnbbu1',3:'k3eoprkx1i',4:'1mchjrj741l',5:'h1fw3r0ybg'};
 const PHNAME={1:'Antes de leer',2:'El negocio',3:'Datos y organización',4:'Debate',5:'Conclusiones'};
 const ROLES3=`<div class="roles"><div><b>Moderador</b><br>Llena el formulario y comparte pantalla.</div><div><b>Cronometrista</b><br>Cuida el tiempo de cada pregunta.</div><div><b>Voz crítica</b><br>Pregunta: “¿dónde dice eso el caso?”</div></div>`;
 const ROOMS={
- 1:{t:'Sala 1 · Predicción',min:15,goal:'Dejar por escrito una predicción antes de que el caso la corrija.',steps:['<b>4 min en silencio:</b> cada integrante responde P1 a P3 por su cuenta (en papel o notas).','<b>8 min en sala:</b> cada quien lee su plan en 1–2 minutos. El moderador escribe en el formulario el plan del grupo.','<b>3 min:</b> bloqueen las respuestas, vuelvan a la sala principal y pidan la clave al profesor.'],q:'¿En qué difieren sus planes y por qué?'},
- 2:{t:'Sala 2 · El negocio del club',min:35,goal:'Entender cómo gana dinero el Barça y qué tan lejos está de Netflix, Google y Apple.',steps:['Cada integrante <b>lidera una pregunta</b> (P1 a P5) y rota el liderazgo; unos 6 minutos por pregunta.','El líder lee la pregunta, propone una respuesta con evidencia del caso y el grupo la reta.','En P2 (canvas) y P4 (radar) decidan por consenso; si no llegan, voten y anoten el desacuerdo.','Al terminar, pidan la clave de la Fase 3.'],q:'¿Qué parte del modelo de negocio depende más de que el equipo gane?'},
- 3:{t:'Sala 3 · Datos y organización',min:35,goal:'Diagnosticar la gobernanza de datos del club y decidir quién debe hacerse cargo.',steps:['Mismo ritmo: <b>un líder por pregunta</b> (P6 a P10), unos 6 minutos cada una.','P7 (gobernanza) y P10 (RACI) son las que más debate generan; reserven tiempo para ellas.','En la matriz RACI cada fila necesita un solo “A”. Discutan quién responde, no solo quién ayuda.','Al terminar, pidan la clave de la Fase 4.'],q:'¿Qué reto de datos es más difícil de resolver con tecnología?'},
+ 1:{t:'Sala 1 · Predicción',min:15,goal:'Dejar por escrito una predicción antes de que el caso la corrija.',steps:['<b>4 min en silencio:</b> cada integrante responde P1 a P4 por su cuenta (en papel o notas).','<b>8 min en sala:</b> cada quien lee su plan en 1–2 minutos. El moderador escribe en el formulario el plan del grupo.','<b>3 min:</b> bloqueen las respuestas, vuelvan a la sala principal y pidan la clave al profesor.'],q:'¿En qué difieren sus planes y por qué?'},
+ 2:{t:'Sala 2 · El negocio del club',min:40,goal:'Entender cómo gana dinero el Barça y qué tan lejos está de Netflix, Google y Apple.',steps:['Cada integrante <b>lidera una pregunta</b> (P1 a P5) y rota el liderazgo; unos 6 minutos por pregunta.','El líder lee la pregunta, propone una respuesta con evidencia del caso y el grupo la reta.','En P2 y P2B (canvas y mapa de datos propios) y en P4 (radar) decidan por consenso; si no llegan, voten y anoten el desacuerdo.','Al terminar, pidan la clave de la Fase 3.'],q:'¿Qué parte del modelo de negocio depende más de que el equipo gane?'},
+ 3:{t:'Sala 3 · Datos y organización',min:40,goal:'Diagnosticar la gobernanza de datos del club y decidir quién debe hacerse cargo.',steps:['Mismo ritmo: <b>un líder por pregunta</b> (P6 a P10), unos 6 minutos cada una.','P7, P7B (hoja de ruta) y P10 (RACI) son las que más debate generan; reserven tiempo para ellas.','En la matriz RACI cada fila necesita un solo “A”. Discutan quién responde, no solo quién ayuda.','Al terminar, pidan la clave de la Fase 4.'],q:'¿Qué reto de datos es más difícil de resolver con tecnología?'},
  4:{t:'Sala 4 · Debate',min:15,goal:'Defender una postura con evidencia, aunque no sea la propia.',steps:['<b>2 min:</b> cada integrante toma una postura (por sorteo) y escribe su argumento con evidencia del caso.','<b>5 min:</b> cada quien presenta su argumento sin interrupciones.','<b>5 min:</b> discusión libre y conclusión del grupo con condiciones.','Pidan la clave de la Fase 5.'],q:'¿Alguien cambió de postura durante el debate?'},
  5:{t:'Sala 5 · Aprendizaje',min:15,goal:'Comparar lo que sabían al inicio con lo que aprendieron.',steps:['<b>5 min individuales:</b> cada quien responde las preguntas de reflexión (a a f).','<b>7 min en sala:</b> comparen sus respuestas y escojan el aprendizaje más importante.','<b>3 min:</b> generen el PDF del grupo y súbanlo a Teams.'],q:'¿Qué cambiaron de su plan inicial y qué mantendrían?'}
 };
@@ -954,12 +1066,13 @@ function applyPhases(){
 
 /* ---------- boot ---------- */
 function boot(){
-  initPhases();initPre();initQ1();initQ3();initQ4();initQ5();initQ6();initQ7();initQ8();initQ9();initQ10();initDebate();
-  chipAssign({id:'bmc',bankEl:'#bmcbank',gridEl:'#bmcgrid',chips:BMCCHIPS,blocks:BMC,verifyBtn:'#bmcverify',scoreEl:'#bmcscore',noteEl:'#bmcnote'});
+  initPhases();initPre();initQ1();initQ2();initGsim();initQ3();initQ4();initQ5();initQ6();initQ7();initQ8();initQ9();initQ10();initDebate();
+  chipAssign({id:'fpd',bankEl:'#fpdbank',gridEl:'#fpdgrid',chips:FPDCHIPS,blocks:FPDBLOCKS,verifyBtn:'#fpdverify',scoreEl:'#fpdscore',noteEl:'#fpdnote'});
+  chipAssign({id:'proj',free:true,bankEl:'#projbank',gridEl:'#projgrid',chips:PROJCHIPS,blocks:PROJBLOCKS,scoreEl:'#projscore'});
   chipAssign({id:'org',bankEl:'#orgbank',gridEl:'#orggrid',chips:ORGB,blocks:ORGCOLS.map(c=>[c[0],c[1],'']),verifyBtn:'#orgverify',scoreEl:'#orgscore'});
   bindFields();
   // restore selects/inputs bound by data-k that are not textareas
-  drawRadar();window._q5();$('#e2v').textContent=$('#e2').value+'%';
+  drawRadar();window._q5();window._gsim();$$('#rk5_tec,#rk5_gob,#rk5_cul').forEach(x=>x.addEventListener('change',rkRender));rkRender();$('#e2v').textContent=$('#e2').value+'%';
   applyLock();initNav();initPdf();progress();
 }
 boot();
