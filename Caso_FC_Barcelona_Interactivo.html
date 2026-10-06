@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caso FC Barcelona · Simulador</title>
+<style>
+:root{
+  --blue:#004D98; --blue-d:#00346a; --garnet:#A50044; --gold:#EDBB00;
+  --bg:#f5f3ee; --card:#ffffff; --ink:#1b2438; --mute:#5d667a; --line:#dcd8cd;
+  --ok:#1b7f4b; --bad:#b3261e; --soft:#eef3fa;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;line-height:1.2;margin:0 0 .4em}
+h1{font-size:clamp(28px,5vw,44px)}
+h2{font-size:26px;color:var(--blue-d)}
+h3{font-size:19px;color:var(--ink)}
+p{margin:.4em 0 .8em}
+a{color:var(--blue)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+
+/* top bar */
+#bar{position:sticky;top:0;z-index:50;background:var(--blue-d);color:#fff;box-shadow:0 2px 8px #0003}
+#bar .wrap{display:flex;align-items:center;gap:14px;padding:10px 18px;flex-wrap:wrap}
+#bar nav{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+#bar nav a{color:#dce8f8;text-decoration:none;font-size:14px;padding:5px 10px;border-radius:999px}
+#bar nav a:hover,#bar nav a.on{background:#ffffff22;color:#fff}
+#prog{display:flex;align-items:center;gap:8px;font-size:13px;min-width:170px}
+#prog .track{flex:1;height:8px;border-radius:99px;background:#ffffff33;overflow:hidden}
+#prog .fill{height:100%;width:0;background:var(--gold);transition:width .3s}
+
+/* hero */
+.hero{background:linear-gradient(120deg,var(--blue) 0 58%,var(--garnet) 58% 100%);color:#fff;padding:44px 0 36px}
+.hero p{max-width:640px;font-size:17px;color:#e9f0fb}
+.stripe{height:6px;background:repeating-linear-gradient(90deg,var(--blue) 0 24px,var(--garnet) 24px 48px)}
+.pill{display:inline-block;background:#ffffff26;border:1px solid #ffffff55;border-radius:999px;padding:3px 12px;font-size:13px;margin-bottom:12px}
+.team{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-top:20px;max-width:760px}
+.team label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#cfdcf1;display:block}
+.team input,.team textarea{width:100%;padding:9px 11px;border-radius:8px;border:1px solid #ffffff66;background:#ffffff1c;color:#fff;font:inherit}
+.team input::placeholder,.team textarea::placeholder{color:#c3d2ea}
+
+section.step{margin:34px 0}
+.stephead{display:flex;align-items:baseline;gap:12px;border-bottom:3px solid var(--blue);margin-bottom:14px;padding-bottom:4px}
+.stephead .n{font:700 34px Georgia,serif;color:var(--garnet)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:14px 0;box-shadow:0 1px 0 #0000000a}
+.card.q{border-left:6px solid var(--blue)}
+.qn{display:inline-block;background:var(--blue);color:#fff;border-radius:6px;font-weight:700;font-size:13px;padding:1px 9px;margin-right:6px}
+.hint{background:#fff8dd;border:1px solid #ecd988;border-radius:10px;padding:9px 12px;font-size:14px;margin:10px 0}
+.evi{background:var(--soft);border-left:4px solid var(--blue);padding:8px 12px;border-radius:0 8px 8px 0;font-size:14px;color:#26334d;margin:10px 0}
+.evi b{color:var(--blue-d)}
+.muted{color:var(--mute);font-size:14px}
+.warn{color:var(--bad);font-size:14px}
+.good{color:var(--ok);font-size:14px}
+
+textarea,input[type=text],input[type=number],select{font:inherit;color:var(--ink);border:1px solid #bfc6d4;border-radius:8px;padding:8px 10px;background:#fff;width:100%}
+textarea{resize:vertical;min-height:84px}
+textarea:focus,input:focus,select:focus{outline:3px solid #004d9833;border-color:var(--blue)}
+textarea[readonly],input[readonly]{background:#f1efe8;color:#3a4357}
+label.fl{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid var(--blue);background:var(--blue);color:#fff;padding:8px 16px;font-weight:600}
+button:hover{background:var(--blue-d)}
+button.ghost{background:#fff;color:var(--blue)}
+button.ghost:hover{background:var(--soft)}
+button.gold{background:var(--gold);border-color:var(--gold);color:#1b2438}
+button:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:760px){.grid2,.grid3,.team{grid-template-columns:1fr}.hero{background:linear-gradient(180deg,var(--blue) 0 70%,var(--garnet) 70%)}}
+
+/* phases */
+.lockedmsg{color:var(--ok);font-weight:600}
+.phase .lockph{display:none}
+.phase.locked .lockph{display:block}
+.phase.locked .pbody{display:none}
+.lockph{border:2px dashed #c9b25a;background:#fff8dd;border-radius:14px;padding:22px 24px;text-align:center}
+.lockph h3{margin:0 0 4px;color:var(--ink)}
+.lockph .big{font-size:40px;line-height:1}
+.room{border:1px solid #9db3d6;background:linear-gradient(180deg,#f2f7ff,#fff);border-radius:14px;padding:14px 18px;margin:12px 0 18px}
+.room h3{margin:0 0 2px;font-size:17px;color:var(--blue-d)}
+.room .meta{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+.room .meta span{background:var(--blue);color:#fff;border-radius:999px;font-size:12.5px;padding:2px 11px}
+.room .meta span.alt{background:var(--garnet)}
+.room ol{margin:6px 0 8px 1.2em;padding:0}
+.room li{margin:3px 0}
+.room .roles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.room .roles div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:13.5px}
+@media(max-width:700px){.room .roles{grid-template-columns:1fr}}
+.unlock{margin:26px 0 8px;border:2px solid var(--blue);border-radius:14px;padding:14px 18px;background:#fff}
+.unlock h3{margin:0 0 4px}
+.unlock .row input{max-width:260px}
+.unlock.off{opacity:.55}
+#bar nav a.lk::after{content:" 🔒";font-size:11px}
+#bar nav a.lk{opacity:.7}
+.finish.hide{display:none}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.shake{animation:shake .35s}
+
+/* radios as cards */
+.opts{display:grid;gap:8px;margin:8px 0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer;background:#fff}
+.opt:hover{border-color:var(--blue)}
+.opt input{margin-top:5px;accent-color:var(--blue)}
+.opt.sel{border-color:var(--blue);background:var(--soft)}
+
+/* chips and blocks */
+.bank{display:flex;flex-wrap:wrap;gap:8px;padding:10px;border:2px dashed #b9c4d8;border-radius:12px;background:#fbfcfe;min-height:54px}
+.chip{border:1px solid #9db3d6;background:#fff;border-radius:999px;padding:5px 12px;font-size:13.5px;cursor:pointer;line-height:1.3;text-align:left}
+.chip:hover{background:var(--soft)}
+.chip.sel{background:var(--gold);border-color:#b58f00;font-weight:600;box-shadow:0 0 0 3px #edbb0055}
+.drop{border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:10px;min-height:96px;cursor:pointer;transition:.15s}
+.drop h4{margin:0 0 6px;font-size:14px;color:var(--blue-d)}
+.drop:hover,.armed .drop{border-color:var(--gold);background:#fffbe8}
+.tag{display:inline-block;margin:2px 3px 2px 0;background:var(--soft);border:1px solid #b8c9e6;border-radius:8px;padding:2px 8px;font-size:12.5px;cursor:pointer}
+.tag.ok{background:#e4f5ea;border-color:#8cc9a4}
+.tag.no{background:#fde8e6;border-color:#e3a39d}
+.tag small{display:block;color:var(--bad)}
+.bmc{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.bmc .span2{grid-column:span 2}
+@media(max-width:900px){.bmc{grid-template-columns:1fr 1fr}.bmc .span2{grid-column:span 2}}
+@media(max-width:520px){.bmc{grid-template-columns:1fr}.bmc .span2{grid-column:span 1}}
+.score{font-weight:700;font-size:18px}
+
+/* tables */
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#eef2f9;color:var(--blue-d)}
+td select,td input[type=text],td textarea{padding:5px 7px;font-size:14px}
+td textarea{min-height:56px}
+.tscroll{overflow-x:auto}
+
+/* slider */
+input[type=range]{width:100%;accent-color:var(--garnet)}
+.sl{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;margin:8px 0}
+.sl b{min-width:54px;text-align:right;color:var(--garnet)}
+.sl label{font-size:14px;font-weight:600}
+.big{font:700 30px Georgia,serif;color:var(--blue-d)}
+.kpi{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px}
+.kpi small{display:block;color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.bar{height:14px;border-radius:99px;background:#e6e9f0;overflow:hidden;position:relative}
+.bar i{display:block;height:100%;background:var(--blue)}
+.bar i.g{background:var(--garnet)}
+.leg{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;margin:6px 0}
+.leg label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+svg text{font-family:system-ui,sans-serif}
+
+.accordion details{border:1px solid var(--line);border-radius:10px;background:#fff;margin:8px 0;padding:6px 12px}
+.accordion summary{cursor:pointer;font-weight:600;padding:4px 0}
+.finish{background:linear-gradient(120deg,var(--blue-d),var(--blue));color:#fff;border-radius:16px;padding:22px;margin:30px 0}
+.finish button{background:var(--gold);border-color:var(--gold);color:#1b2438}
+.printcopy{display:none}
+footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
+
+@media print{
+  @page{size:A4;margin:14mm}
+  body{background:#fff;font-size:11.5px}
+  #bar,#gate-note,.noprint,button,.hero .pill,.stripe{display:none!important}
+  .hero{background:#fff;color:#000;padding:0;border-bottom:3px solid var(--blue)}
+  .hero p{color:#222}
+  .team input,.team textarea{border:0;border-bottom:1px solid #999;background:none;color:#000;padding:2px 0}
+  .team label{color:#555}
+  .phase.locked .pbody{display:block!important}
+  .lockph,.room,.unlock,.finish{display:none!important}
+  .card{break-inside:avoid;box-shadow:none}
+  textarea{display:none!important}
+  .printcopy{display:block;white-space:pre-wrap;border:1px solid #bbb;border-radius:6px;padding:6px 8px;min-height:26px;background:#fcfcfc}
+  .bank{display:none}
+  .drop{min-height:40px}
+  input[type=range]{display:none}
+  .hint{display:none}
+  section.step{page-break-before:auto}
+}
+</style>
+</head>
+<body>
+
+<div id="bar" class="noprint">
+  <div class="wrap">
+    <strong>FC Barcelona · Caso</strong>
+    <nav id="nav">
+      <a href="#s1" data-n="1">1 · Antes de leer</a>
+      <a href="#s2" data-n="2">2 · El negocio</a>
+      <a href="#s3" data-n="3">3 · Datos y organización</a>
+      <a href="#s4" data-n="4">4 · Debate</a>
+      <a href="#s5" data-n="5">5 · Conclusiones</a>
+    </nav>
+    <div id="prog"><span id="pct">0%</span><div class="track"><div class="fill" id="fill"></div></div></div>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="pill">Marketing Analytics · Caso No. 2 · Modalidad: grupos de trabajo</span>
+    <h1>FC Barcelona:<br>More Than a Club, More Than Data</h1>
+    <p>Un club con 300 millones de fans, casi €1.000 millones en ingresos y datos regados en decenas de sistemas. En esta actividad van a decidir, medir y debatir antes de que el caso les diga qué pasó.</p>
+    <div class="team">
+      <div><label for="g_name">Grupo</label><input id="g_name" data-k="g_name" type="text" placeholder="Ej. Grupo 3"></div>
+      <div><label for="g_members">Integrantes</label><input id="g_members" data-k="g_members" type="text" placeholder="Nombres de los integrantes"></div>
+    </div>
+  </div>
+</header>
+<div class="stripe"></div>
+
+<main class="wrap">
+
+<div class="card" style="margin-top:22px">
+  <h3>Cómo funciona</h3>
+  <p>La actividad tiene <b>5 fases</b>. Cada fase se trabaja en una <b>sala de trabajo (breakout room)</b> con su grupo. Al terminar una fase, el profesor da la <b>clave</b> que abre la siguiente. La Fase 1 se contesta <u>antes</u> de leer el caso y se bloquea al guardarla; la Fase 5 la compara con lo que aprendieron.</p>
+  <p><b>Un relator por sala</b> llena el formulario y comparte pantalla; los demás aportan en voz alta. Lo que se escribe se guarda automáticamente en el navegador del relator. Al final se genera el PDF y se sube a Teams.</p>
+  <p class="muted">Material: caso IESE <i>FC Barcelona: More Than a Club, More Than Data</i> (IES861). Las cifras de gráficos marcadas con “≈” son aproximaciones leídas de los exhibits; verifíquenlas en el caso antes de citarlas.</p>
+</div>
+
+<!-- ============ 1 ============ -->
+<section class="step phase" id="s1" data-ph="1"><div class="pbody">
+  <div class="stephead"><span class="n">1</span><h2>Preguntas previas <span class="muted" style="font-weight:400;font-family:system-ui">(antes de leer el caso)</span></h2></div>
+  <div class="room" data-room="1"></div>
+  <p>No hay respuesta errónea. Al final van a comparar lo que escribieron con lo que aprendieron, así que <b>no las corrijan después</b>.</p>
+
+  <div class="card q">
+    <h3><span class="qn">P1</span> Su primera misión</h3>
+    <p>Los acaban de contratar como responsables de datos de un club deportivo global: <b>300 millones de fans estimados, ~€1.000 millones de ingresos, seis equipos profesionales, museo, tiendas, estadio, escuelas, fundación</b>… cada área con sus propios sistemas. Su misión: <i>volver al club una organización guiada por datos.</i></p>
+    <label class="fl" for="p1">Tienen tres años. ¿Por dónde empiezan y por qué?</label>
+    <textarea id="p1" data-k="p1" data-req data-pre placeholder="Escriban su plan en pocas líneas…"></textarea>
+  </div>
+
+  <div class="card q">
+    <h3><span class="qn">P2</span> Su mayor obstáculo</h3>
+    <div class="opts" id="p2opts"></div>
+    <label class="fl" for="p2why">Expliquen en una línea.</label>
+    <input type="text" id="p2why" data-k="p2why" data-req data-pre>
+  </div>
+
+  <div class="card q">
+    <h3><span class="qn">P3</span> Adivinen las cifras</h3>
+    <p>Sin buscar nada: ¿qué tan avanzado estaba el club en su transformación de datos a mediados de 2019? En la sección 4 vemos qué tan cerca estuvieron.</p>
+    <div class="grid3">
+      <div>
+        <label class="fl" for="e1">Fuentes de datos <b>externas</b> integradas a finales de 2018 (al inicio del plan eran 5)</label>
+        <input type="number" id="e1" data-k="e1" data-req data-pre min="0" max="500" placeholder="N.º de fuentes">
+      </div>
+      <div>
+        <label class="fl" for="e2">% de los datos generados por el club que estaba <b>automatizado</b> a mediados de 2019</label>
+        <div class="sl"><input type="range" id="e2" data-k="e2" data-req data-pre min="0" max="100" value="50" step="1"><b id="e2v">50%</b></div>
+      </div>
+      <div>
+        <label class="fl" for="e3">N.º de <b>dashboards</b> que mantenía el equipo de datos</label>
+        <input type="number" id="e3" data-k="e3" data-req data-pre min="0" max="1000" placeholder="N.º de dashboards">
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <button id="lockbtn">🔒 Guardar y bloquear respuestas iniciales</button>
+    <span id="lockmsg" class="muted">Después de bloquear ya no podrán editarlas.</span>
+  </div>
+  <div class="unlock off" data-next="2"></div>
+</div></section>
+
+
+
+
+<!-- ============ 2 ============ -->
+<section class="step phase locked" id="s2" data-ph="2">
+  <div class="lockph" data-lock="2"></div>
+  <div class="pbody">
+  <div class="stephead"><span class="n">2</span><h2>El negocio <span class="muted" style="font-weight:400;font-family:system-ui">· preguntas 1 a 5</span></h2></div>
+  <div class="room" data-room="2"></div>
+  <p>Lean el caso con su grupo y respondan con argumentos del texto, no con opiniones generales.</p>
+
+  <!-- Q1 -->
+  <div class="card q" id="q1">
+    <h3><span class="qn">1</span> ¿Cuáles son los productos que vende el fútbol?</h3>
+    <div class="grid2">
+      <div>
+        <p><b>Explore los ingresos del club.</b> Mueva el año y active las líneas (valores ≈ leídos del Exhibit 1, millones de euros).</p>
+        <div class="leg" id="c1leg"></div>
+        <svg id="c1" viewBox="0 0 560 280" width="100%" role="img" aria-label="Evolución de ingresos y gastos por área"></svg>
+        <div class="sl"><label for="c1y">Temporada</label><b id="c1yv" style="min-width:70px">2018/19</b><input type="range" id="c1y" min="0" max="7" value="7" style="grid-column:1/3"></div>
+        <div id="c1read" class="muted"></div>
+      </div>
+      <div>
+        <p><b>Clasifiquen</b> cada producto: ¿es un producto <i>principal</i> del club, un <i>derivado</i> del primero, o <i>no lo encontramos en el caso</i>?</p>
+        <div class="tscroll"><table id="prodtbl"></table></div>
+      </div>
+    </div>
+    <label class="fl" for="q1a">Su respuesta: ¿qué vende realmente el fútbol y qué rol juega el resultado deportivo?</label>
+    <textarea id="q1a" data-k="q1a" data-req></textarea>
+  </div>
+
+  <!-- Q2 -->
+  <div class="card q" id="q2">
+    <h3><span class="qn">2</span> Modelo de negocio tradicional (Business Model Canvas)</h3>
+    <p>Toquen una ficha y luego el bloque del canvas donde corresponde. Pueden tocar una etiqueta ya colocada para devolverla. Algunas fichas pueden ser válidas en más de un bloque.</p>
+    <div class="bank" id="bmcbank"></div>
+    <div class="bmc" id="bmcgrid" style="margin-top:12px"></div>
+    <div class="row" style="margin-top:10px"><button id="bmcverify">Verificar contra el caso</button><span class="score" id="bmcscore"></span></div>
+    <p class="muted" id="bmcnote"></p>
+    <label class="fl" for="q2a">Síntesis del modelo: ¿qué parte del canvas es más fuerte, cuál es más débil y por qué?</label>
+    <textarea id="q2a" data-k="q2a" data-req></textarea>
+  </div>
+
+  <!-- Q3 -->
+  <div class="card q" id="q3">
+    <h3><span class="qn">3</span> ¿Qué rol juegan las tecnologías de información en este modelo?</h3>
+    <p>El caso divide la arquitectura de sistemas en cinco bloques. Para cada uno escriban <b>qué hace el club con él</b> y <b>qué problema crea para integrar datos</b>.</p>
+    <div class="accordion" id="archacc"></div>
+    <label class="fl" for="q3a">Conclusión: ¿TI es un soporte, un habilitador o parte de la propuesta de valor del club?</label>
+    <textarea id="q3a" data-k="q3a" data-req></textarea>
+  </div>
+
+  <!-- Q4 -->
+  <div class="card q" id="q4">
+    <h3><span class="qn">4</span> ¿Qué tan cerca está el Barça de ser comparado con Netflix, Google y Apple?</h3>
+    <div class="evi">“FC Barcelona, as a global entertainment company, should strive to be compared not only with Real Madrid or Manchester United, but with Netflix, Google and Apple.” — Chief Strategy Officer</div>
+    <p>Califiquen de 0 a 5 al Barça <b style="color:var(--garnet)">(rojo)</b> y a la referencia <b style="color:var(--blue)">(azul: Netflix/Google/Apple)</b> en cada dimensión. Escriban la evidencia del caso.</p>
+    <div class="grid2">
+      <div id="radarctl"></div>
+      <div style="position:sticky;top:90px;align-self:start"><svg id="radar" viewBox="-230 -150 460 310" width="100%"></svg><div id="radartxt" class="muted"></div></div>
+    </div>
+    <label class="fl" for="q4a">Veredicto del grupo: ¿qué tan lejos o cerca está? ¿Qué dimensión cerraría primero?</label>
+    <textarea id="q4a" data-k="q4a" data-req></textarea>
+  </div>
+
+  <!-- Q5 -->
+  <div class="card q" id="q5">
+    <h3><span class="qn">5</span> ¿Cuál es el problema del modelo si el club quiere crecer rápido?</h3>
+    <div class="evi"><b>Pista del caso:</b> más de 300 millones de fans estimados, pero en 2019 el club solo tenía <i>registrados y contactables</i> “un número muy pequeño”; Facebook e Instagram controlaban esos contactos. Teresa Romeu: “en diez años esto será la fuente de ingresos más importante”.</div>
+    <h3 style="font-size:16px">Simulador: ¿cuánto vale conocer al fan?</h3>
+    <p class="muted">Escenario hipotético con sus supuestos; no son cifras del caso.</p>
+    <div class="grid2">
+      <div>
+        <div class="sl"><label for="f1">% de los 300M de fans identificados y contactables</label><b id="f1v"></b><input type="range" id="f1" data-k="f1" min="0.1" max="20" step="0.1" value="1" style="grid-column:1/3"></div>
+        <div class="sl"><label for="f2">% de los contactables que compran algo al año</label><b id="f2v"></b><input type="range" id="f2" data-k="f2" min="1" max="40" step="1" value="10" style="grid-column:1/3"></div>
+        <div class="sl"><label for="f3">Gasto promedio anual por comprador (€)</label><b id="f3v"></b><input type="range" id="f3" data-k="f3" min="5" max="250" step="5" value="60" style="grid-column:1/3"></div>
+      </div>
+      <div class="grid2">
+        <div class="kpi"><small>Fans contactables</small><div class="big" id="fo1"></div></div>
+        <div class="kpi"><small>Compradores al año</small><div class="big" id="fo2"></div></div>
+        <div class="kpi"><small>Ingreso incremental</small><div class="big" id="fo3"></div></div>
+        <div class="kpi"><small>vs. ~€1.000M de ingresos</small><div class="big" id="fo4"></div></div>
+      </div>
+    </div>
+    <label class="fl" for="q5a">¿Cuál es el problema del modelo? Usen el simulador: ¿qué palanca pesa más y qué dato falta para moverla?</label>
+    <textarea id="q5a" data-k="q5a" data-req></textarea>
+  </div>
+
+  <div class="unlock" data-next="3"></div>
+  </div>
+</section>
+
+<section class="step phase locked" id="s3" data-ph="3">
+  <div class="lockph" data-lock="3"></div>
+  <div class="pbody">
+  <div class="stephead"><span class="n">3</span><h2>Datos y organización <span class="muted" style="font-weight:400;font-family:system-ui">· preguntas 6 a 10</span></h2></div>
+  <div class="room" data-room="3"></div>
+
+  <!-- Q6 -->
+  <div class="card q" id="q6">
+    <h3><span class="qn">6</span> Ventajas de la “datafication” en el deporte</h3>
+    <p>Estas son decisiones que el caso plantea a los directivos. Para cada una, seleccionen <b>qué fuentes de datos</b> (Exhibit 8) usarían.</p>
+    <div id="decs"></div>
+    <div class="row"><button class="ghost" id="decshow">Ver una posible respuesta</button></div>
+    <div id="decsol" class="evi" style="display:none"></div>
+    <label class="fl" for="q6a">Ventajas de la datafication (deportiva y de negocio). Den al menos tres, con ejemplo del caso.</label>
+    <textarea id="q6a" data-k="q6a" data-req></textarea>
+  </div>
+
+  <!-- Q7 -->
+  <div class="card q" id="q7">
+    <h3><span class="qn">7</span> Retos de gobernanza de datos y cómo solucionarlos</h3>
+    <p><b>Progreso reportado en el caso</b></p>
+    <div class="grid3" id="govbars"></div>
+    <p style="margin-top:14px">Para cada área: califiquen la gravedad del reto <b>0 (resuelto) a 3 (crítico)</b>, citen evidencia y propongan una solución.</p>
+    <div class="tscroll"><table id="govtbl"></table></div>
+    <h3 style="font-size:16px;margin-top:18px">Mapa de propiedad de datos</h3>
+    <p class="muted">¿Quién controla hoy estos datos y qué mecanismo usarían para recuperar acceso?</p>
+    <div class="tscroll"><table id="owntbl"></table></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="card q" id="q8">
+    <h3><span class="qn">8</span> ¿Cómo puede la tecnología ayudar a romper los silos?</h3>
+    <p><b>Parte A.</b> El club definió una estructura de tres niveles. Asignen cada responsabilidad al nivel que le corresponde.</p>
+    <div class="bank" id="orgbank"></div>
+    <div class="grid3" id="orggrid" style="margin-top:12px"></div>
+    <div class="row" style="margin-top:10px"><button id="orgverify">Verificar</button><span class="score" id="orgscore"></span></div>
+    <p><b>Parte B.</b> Marquen qué soluciones tecnológicas del caso atacan cada tipo de silo.</p>
+    <div class="tscroll"><table id="silotbl"></table></div>
+    <label class="fl" for="q8a">Respuesta: ¿cómo ayuda la tecnología y dónde NO alcanza solo con tecnología?</label>
+    <textarea id="q8a" data-k="q8a" data-req></textarea>
+  </div>
+
+  <!-- Q9 -->
+  <div class="card q" id="q9">
+    <h3><span class="qn">9</span> ¿Cómo asegurar que la innovación digital ocurra?</h3>
+    <p>Elijan <b>los 3 mecanismos</b> que más aseguran que la innovación ocurra (máximo 3) y justifiquen.</p>
+    <div class="opts" id="mechs"></div>
+    <div id="mechcount" class="muted"></div>
+    <label class="fl" for="q9a">Justifiquen su top 3 y expliquen cómo evitarían la burocratización que advierte Mateu.</label>
+    <textarea id="q9a" data-k="q9a" data-req></textarea>
+  </div>
+
+  <!-- Q10 -->
+  <div class="card q" id="q10">
+    <h3><span class="qn">10</span> ¿Quiénes estarían a cargo? Matriz RACI</h3>
+    <p><b>R</b> hace · <b>A</b> responde (solo uno por fila) · <b>C</b> consultado · <b>I</b> informado.</p>
+    <div class="tscroll"><table id="raci"></table></div>
+    <div id="racichk"></div>
+    <label class="fl" for="q10a">Justifiquen sus decisiones más debatidas (¿por qué ese “A”?).</label>
+    <textarea id="q10a" data-k="q10a" data-req></textarea>
+  </div>
+  <div class="unlock" data-next="4"></div>
+  </div>
+  <div class="unlock" data-next="5"></div>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="step phase locked" id="s4" data-ph="4">
+  <div class="lockph" data-lock="4"></div>
+  <div class="pbody">
+  <div class="stephead"><span class="n">4</span><h2>Debate del grupo</h2></div>
+  <div class="room" data-room="4"></div>
+  <div class="card q">
+    <h3>¿Debe el Barça priorizar la monetización de los datos de sus fans, o proteger primero su privacidad y su identidad de “más que un club”?</h3>
+    <div class="evi"><b>Tensiones del caso:</b> presión por generar ingresos (“¿de dónde sacamos dinero?”), GDPR, más de 140.000 socios que eligen a la directiva, 300M de fans en plataformas ajenas y el riesgo de convertir el club en “solo un negocio”.</div>
+    <p>Cada integrante toma una postura (aunque no sea la suya), escribe su argumento y después completan la conclusión.</p>
+    <div class="tscroll"><table id="debtbl"></table></div>
+    <div class="row noprint" style="margin-top:8px"><button class="ghost" id="adddeb">+ Agregar integrante</button><span id="debsum" class="muted"></span></div>
+    <label class="fl" for="debc">Conclusión del grupo: ¿con qué condiciones sí y con cuáles no?</label>
+    <textarea id="debc" data-k="debc" data-req></textarea>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="step phase locked" id="s5" data-ph="5">
+  <div class="lockph" data-lock="5"></div>
+  <div class="pbody">
+  <div class="stephead"><span class="n">5</span><h2>Conclusiones y aprendizaje</h2></div>
+  <div class="room" data-room="5"></div>
+
+  <div class="card">
+    <h3>Lo que escribieron al inicio (bloqueado)</h3>
+    <div class="grid2">
+      <div><b>P1 · Su plan</b><div class="evi" id="rp1" style="white-space:pre-wrap"></div></div>
+      <div><b>P2 · Obstáculo</b><div class="evi" id="rp2"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>¿Qué tan cerca estuvieron de las cifras reales?</h3>
+    <div class="tscroll"><table id="esttbl"></table></div>
+    <p class="muted">Fuente: texto del caso (p. 6 y p. 11). Los dashboards son “más de 110”.</p>
+  </div>
+
+  <div class="card q">
+    <h3>Preguntas de reflexión</h3>
+    <label class="fl" for="ra">a) ¿En qué acertaron?</label><textarea id="ra" data-k="ra" data-req></textarea>
+    <label class="fl" for="rb">b) ¿En qué se equivocaron o qué no habían considerado?</label><textarea id="rb" data-k="rb" data-req></textarea>
+    <label class="fl" for="rc">c) El obstáculo que marcaron, ¿coincide con los que mencionan Pagés (datos correctos, disponibles y usados), Díez (silos), Vicens (la paradoja de la tecnología) o Mateu (burocratización)? Si no, ¿cuál es?</label><textarea id="rc" data-k="rc" data-req></textarea>
+    <label class="fl" for="rd">d) ¿Qué reto de datos casi pasan por alto en su plan inicial (por ejemplo, propiedad de datos de terceros)?</label><textarea id="rd" data-k="rd" data-req></textarea>
+    <label class="fl" for="re">e) Comparación con Starbucks Deep Brew: ¿qué hizo EDAP que el Barça intentó con su data warehouse, NEXUS y los tres niveles? ¿Qué le falta al Barça?</label><textarea id="re" data-k="re" data-req></textarea>
+    <label class="fl" for="rf">f) Espejo: ¿qué de este caso se parece a su propia empresa o institución? Den una evidencia concreta (sin nombrar a la empresa).</label><textarea id="rf" data-k="rf" data-req></textarea>
+  </div>
+  </div>
+</section>
+
+<div class="finish noprint hide" id="finish">
+  <h2 style="color:#fff">Entrega</h2>
+  <p>Cuando todo esté completo: <b>Generar PDF</b> → en la ventana de impresión elijan “Guardar como PDF” → súbanlo a Teams con el nombre de su grupo.</p>
+  <div class="row"><button id="pdfbtn">📄 Generar PDF para entregar</button><span id="finmsg"></span></div>
+</div>
+
+<footer class="noprint">Caso: Zamora, Sastre Boquet y Vilet (2021), <i>FC Barcelona: More Than a Club, More Than Data</i>, IESE IES861. Material de uso académico. Las respuestas se guardan solo en este navegador.</footer>
+</main>
+
+<script>
+"use strict";
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEY='barca_caso_v1';
+let S={unlocked:{1:true},f:{},assign:{},verified:{},locked:false,sel:null,mech:[],cells:{},prod:{},deb:[{},{},{},{}],sources:{}};
+try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+let saveT;function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}},200)}
+
+window.addEventListener('pagehide',()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}});
+/* ---------- data ---------- */
+const P2=[["tec","La tecnología: modelos, infraestructura, datos."],["per","Las personas: que nadie use lo que construyes."],["din","El dinero: justificar la inversión sin resultados todavía."],["org","La organización: silos, dueños distintos, cada área con lo suyo."],["otro","Otro"]];
+const REAL={e1:49,e2:40,e3:110};
+
+const YEARS=["2011/12","2012/13","2013/14","2014/15","2015/16","2016/17","2017/18","2018/19"];
+const SER=[
+ {id:"mkt",n:"Marketing",c:"#EDBB00",v:[167,172,169,226,268,264,263,325],on:1},
+ {id:"med",n:"Media (TV)",c:"#004D98",v:[160,162,161,163,168,180,222,298],on:1},
+ {id:"est",n:"Estadio",c:"#6a8fc8",v:[129,126,128,149,158,176,182,194],on:1},
+ {id:"soc",n:"Socios",c:"#8a8f9c",v:[20,20,19,18,18,18,18,18],on:1},
+ {id:"tra",n:"Traspasos y otros",c:"#A50044",v:[19,10,53,53,67,73,228,155],on:1},
+ {id:"sal",n:"Gasto: salarios deportivos",c:"#2b2b2b",v:[298,305,320,418,435,432,640,670],on:0,d:1},
+ {id:"ges",n:"Gasto: gestión",c:"#9b6b1c",v:[78,75,85,100,112,137,157,200],on:0,d:1}
+];
+const PRODS=["Partidos / entradas (taquilla)","Membresía (socios)","Derechos audiovisuales (TV)","Patrocinio y publicidad","Merchandising y licencias","Experiencias (museo, tour del estadio, eventos)","Jugadores (traspasos)","Formación (escuelas de fútbol, La Masía)","Contenido digital y e-commerce","Datos de fans (como activo vendible)"];
+
+const BMC=[
+ ["vp","Propuesta de valor","span2"],["seg","Segmentos de cliente","span2"],["can","Canales",""],
+ ["rel","Relaciones con el cliente",""],["act","Actividades clave",""],["rec","Recursos clave",""],["soc","Socios clave",""],
+ ["cos","Estructura de costos","span2"],["ing","Fuentes de ingresos","span2"]
+];
+const BMCCHIPS=[
+ ["Éxito deportivo y estilo propio (“Barça DNA”)",["vp"]],
+ ["Misión: ser la institución deportiva más admirada, querida y global",["vp"]],
+ ["141.846 socios (2018/19)",["seg"]],
+ ["300M+ de fans en redes sociales",["seg"]],
+ ["Visitantes del museo y del complejo (6M al año)",["seg"]],
+ ["Niños de 50 escuelas de fútbol y de la Fundación",["seg"]],
+ ["Camp Nou (99.000 plazas)",["can","rec"]],
+ ["Tiendas propias y licenciadas (BLM)",["can"]],
+ ["Redes sociales (Facebook, Instagram)",["can"]],
+ ["Web, app y e-commerce",["can"]],
+ ["Transmisión por TV (derechos audiovisuales)",["can"]],
+ ["Los socios eligen a la directiva cada 6 años",["rel"]],
+ ["Más de 1.200 peñas en el mundo",["rel"]],
+ ["CRM de fans (triplicó contactos)",["rel"]],
+ ["Experiencia en estadio y “smart stadium”",["rel"]],
+ ["Competir con 6 equipos profesionales en 5 deportes",["act"]],
+ ["Formar jugadores en La Masía",["act"]],
+ ["Analizar rendimiento con GPS y video",["act"]],
+ ["Gestionar licencias y merchandising",["act"]],
+ ["Jugadores estrella (Messi, Xavi, Iniesta)",["rec"]],
+ ["Marca Barça",["rec"]],
+ ["La Masía (cantera)",["rec"]],
+ ["Nike (tiendas y licencias)",["soc"]],
+ ["LaLiga (AVET y torniquetes)",["soc"]],
+ ["Telefónica y Mediapro (derechos audiovisuales)",["soc"]],
+ ["Universidades (análisis de datos de La Masía)",["soc"]],
+ ["Escuelas de fútbol franquiciadas",["soc"]],
+ ["Salarios deportivos y traspasos (la mayor partida)",["cos"]],
+ ["Gastos de gestión",["cos"]],
+ ["Espai Barça (inversión de €360M)",["cos"]],
+ ["Marketing y patrocinio (≈ €325M en 2018/19)",["ing"]],
+ ["Derechos de TV / media (≈ €300M en 2018/19)",["ing"]],
+ ["Estadio / día de partido (≈ €195M)",["ing"]],
+ ["Cuotas de socios (≈ €18M)",["ing"]],
+ ["Traspasos de jugadores",["ing"]]
+];
+
+const ARCH=[
+ ["Members (socios)","Gestiona abonos, liberación de asientos y servicios a socios y aficionados."],
+ ["Venue (recintos)","Seguridad, acceso, acreditaciones y taquillas. El sistema AVET de LaLiga controla los torniquetes del Camp Nou."],
+ ["Business (negocio)","Uso comercial de instalaciones, venta de entradas, eventos, catering, VIP."],
+ ["Corporate (corporativo)","Finanzas, RR. HH., compras, legal y cumplimiento."],
+ ["Sport (deportivo)","Servicios médicos, scouting, recolección y análisis de datos de atletas."]
+];
+
+const RADAR=[
+ ["Perfil único del fan","Romeu quiere una “visión singularizada del fan”; en 2019 solo había una fracción de contactos."],
+ ["Plataformas e integración","Silos legados; plan de reducir plataformas y usar un proveedor (NEXUS)."],
+ ["Propiedad y acceso a datos","Datos en manos de Facebook, Telefónica/Mediapro, Nike, franquicias."],
+ ["Decisiones basadas en datos","Dashboards en 3 niveles, KPIs transversales, aún con intuición en muchas áreas."],
+ ["Monetización digital","Digital era de las áreas menos maduras; e-commerce incipiente."],
+ ["Analítica deportiva","Wimu Pro (20.000 datos/s), GPS y video: el área más avanzada."]
+];
+
+const DECS=[
+ ["¿Hay relación entre la alineación del equipo y la audiencia de TV del partido?"],
+ ["¿Qué nacionalidades están más dispuestas a comprar merchandising?"],
+ ["¿Cómo retener mejor a los fans que llegan por redes sociales frente a los que llegan por la web?"],
+ ["¿Cuánto afecta a la venta de entradas y a la actividad en redes que juegue Messi?"]
+];
+const SRC=["Web + App","Redes sociales","e-Ticketing","e-Commerce","CRM de fans","Datos deportivos","Herramientas de análisis","AVET (acceso)","CRM / ERP corporativo","BLM CRM / ERP (licencias)","Seguimiento de medios","Estudio de marca","GPS y tracking de atletas","Análisis de partido y rivales"];
+const DECSOL=[
+ "Seguimiento de medios + Análisis de partido y rivales + e-Ticketing (para cruzar alineación, audiencia y asistencia).",
+ "e-Commerce + BLM CRM/ERP + CRM de fans + Web/App (para cruzar compras con país y perfil).",
+ "Redes sociales + Web/App + CRM de fans + Herramientas de análisis (para comparar comportamiento por canal de origen).",
+ "e-Ticketing + AVET + Redes sociales + e-Commerce + Análisis de partido (efecto Messi sobre venta y actividad)."
+];
+
+const GOV=[
+ ["Disponibilidad","Caso: no se sabía cuántos visitantes tenía el museo ni sus perfiles; solo 40% de los datos automatizados en 2019 y encuestas trimestrales que tardaban mes y medio."],
+ ["Precisión","Caso: ad hoc, notas manuscritas, lesiones ingresadas a mano por el médico, formatos distintos."],
+ ["Propiedad","Caso: franquicias, servicios tercerizados, TV (Telefónica, Mediapro) y redes (Facebook, Instagram) controlan datos clave."],
+ ["KPIs","Caso: “¿qué significa que un día de partido fue bueno o malo?” — Pagés. 110+ dashboards, uno con 70 indicadores."],
+ ["Silos","Caso: cada área adoptó sus propios sistemas; “todos han vivido por separado” — Mateu."]
+];
+const OWN=[
+ ["Redes sociales (+300M de contactos)","Facebook / Instagram"],
+ ["Perfiles de audiencia de TV","Telefónica / Mediapro"],
+ ["Datos de las escuelas de fútbol franquiciadas","Franquiciados"],
+ ["Servicios tercerizados (limpieza, catering)","Proveedores de servicios"],
+ ["Tiendas licenciadas","Nike y licenciatarios"],
+ ["Sistema de acceso AVET","LaLiga"]
+];
+const OWNSTAT=["Propios","Compartidos","De terceros","No sabemos"];
+const OWNMECH=["Cláusula de datos en renovación de contrato","Censo de datos y exigir integración","API / integración técnica","Acuerdo de intercambio con el socio","Reemplazar al proveedor","Aceptar la limitación"];
+
+const ORGB=[
+ ["Identificar las necesidades de datos de su área",["areas"]],
+ ["Detectar oportunidades de negocio analizables",["areas"]],
+ ["Capacitar a otras áreas en tecnología y análisis",["areas"]],
+ ["Priorizar la inversión en datos junto con TI",["ba"]],
+ ["Dar una visión transversal para evitar duplicidad",["ba"]],
+ ["Definir con las áreas soluciones y dashboards",["ba"]],
+ ["Crear una cultura orientada a datos",["ba"]],
+ ["Enriquecer datos corporativos con información externa",["ba"]],
+ ["Consolidar datos de distintas fuentes en un solo repositorio",["ti"]],
+ ["Administrar todas las herramientas del club",["ti"]],
+ ["Asegurar los datos en todas las etapas",["ti"]],
+ ["Garantizar gobierno, calidad y seguridad conforme a GDPR",["ti"]],
+ ["Dar soporte 24/7 a todas las áreas",["ti"]]
+];
+const ORGCOLS=[["areas","Áreas (deporte, comercial, marca…)"],["ba","Business Analytics"],["ti","TI (Deporte y Datos)"]];
+
+const SILOS=[
+ ["Silo de sistemas (cada área con su plataforma)","Reducir plataformas / proveedor único (NEXUS)"],
+ ["Silo de datos (bases ad hoc, formatos distintos)","Data warehouse + integración de fuentes"],
+ ["Silo de decisión (cada área mide a su manera)","Dashboards en 3 niveles y KPIs transversales"],
+ ["Silo de conocimiento (analistas aislados)","Reuniones entre analistas / comunidad de práctica"],
+ ["Silo externo (datos en manos de terceros)","Integración como condición en contratos"]
+];
+const TECHOPT=["—","Plataforma única","Data warehouse","Dashboards","APIs","Cláusulas contractuales","Reuniones/comunidad","IA / segmentación"];
+
+const MECHS=[
+ "Dashboards con KPIs transversales definidos por consenso (¿qué es un buen día de partido?)",
+ "Incluir integración de datos como condición en la renovación de contratos",
+ "Un analista con perfil de negocio en cada área",
+ "Reuniones periódicas entre analistas de distintas áreas",
+ "Alianzas con universidades y centros externos",
+ "Presupuestos multi-temporada (no solo por temporada)",
+ "Plataforma tecnológica única y modular",
+ "Pilotos en La Masía antes de llevarlos al primer equipo",
+ "Un departamento de Business Analytics con mandato transversal",
+ "Cuota de ingresos digitales como meta visible de la directiva"
+];
+const INIT=["Gobierno y calidad de datos","Perfil único del fan (CRM 360)","Smart stadium / Espai Barça","E-commerce y licencias","Cumplimiento GDPR y privacidad"];
+const ROLES=["Presidente y Junta","CEO / Comité","Estrategia (Mateu)","TI / Data Manager (Pagés)","Business Analytics (Díez)","Digital (Romeu)","Analistas de área"];
+
+/* ---------- binding of simple fields ---------- */
+function bindFields(root=document){
+  $$('[data-k]',root).forEach(el=>{
+    const k=el.dataset.k;
+    if(S.f[k]!==undefined) el.value=S.f[k];
+    if(el.tagName==='TEXTAREA' && !el.nextElementSibling?.classList.contains('printcopy')){
+      const d=document.createElement('div');d.className='printcopy';el.after(d);d.textContent=el.value;
+    }
+    el.addEventListener('input',()=>{
+      S.f[k]=el.value;save();
+      const pc=el.nextElementSibling;if(pc&&pc.classList.contains('printcopy'))pc.textContent=el.value;
+      progress();
+    });
+  });
+}
+function syncPrint(){
+  $$('textarea').forEach(t=>{const pc=t.nextElementSibling;if(pc&&pc.classList.contains('printcopy'))pc.textContent=t.value});
+  $$('input[type=text],input[type=number]').forEach(i=>{
+    if(!i.closest('.team')&&!i.closest('table')) {}
+  });
+}
+function progress(){
+  const reqs=$$('[data-req]');let done=0;
+  reqs.forEach(r=>{if(String(r.value||'').trim()!=='')done++});
+  const extra=[S.p2?1:0,S.verified.bmc?1:0,S.verified.org?1:0,S.mech.length===3?1:0];
+  const total=reqs.length+4, d=done+extra.reduce((a,b)=>a+b,0);
+  const p=Math.round(100*d/total);
+  $('#pct').textContent=p+'%';$('#fill').style.width=p+'%';
+}
+
+/* ---------- section 1 ---------- */
+function initPre(){
+  const box=$('#p2opts');
+  box.innerHTML=P2.map(([id,t])=>`<label class="opt ${S.p2===id?'sel':''}"><input type="radio" name="p2" value="${id}" ${S.p2===id?'checked':''}><span>${esc(t)}</span></label>`).join('');
+  box.addEventListener('change',e=>{
+    if(S.locked)return;S.p2=e.target.value;save();
+    $$('.opt',box).forEach(o=>o.classList.toggle('sel',$('input',o).checked));progress();
+  });
+  const e2=$('#e2'),e2v=$('#e2v');
+  const upd=()=>e2v.textContent=e2.value+'%';
+  e2.addEventListener('input',()=>{S.f.e2touched=1;upd()});upd();
+  $('#lockbtn').addEventListener('click',()=>{
+    const miss=['p1','p2why','e1','e3'].filter(k=>!String($('#'+k).value).trim());
+    if(miss.length||!S.p2){$('#lockmsg').innerHTML='<span class="warn">Falta completar P1, P2 (opción y línea) y las cifras de P3.</span>';return}
+    S.f.e2=$('#e2').value;S.locked=true;S.lockedAt=new Date().toLocaleString('es-GT');save();applyLock();
+  });
+}
+function applyLock(){
+  $$('[data-pre]').forEach(el=>{el.readOnly=S.locked;if(el.type==='range'||el.type==='radio')el.disabled=S.locked});
+  $$('input[name=p2]').forEach(r=>r.disabled=S.locked);
+  const b=$('#lockbtn');b.disabled=S.locked;
+  $('#lockmsg').innerHTML=S.locked?`<span class="lockedmsg">✔ Respuestas bloqueadas · ${esc(S.lockedAt||'')}</span>`:'Después de bloquear ya no podrán editarlas.';
+  if(S.locked)fillConclusion();
+  if(typeof applyPhases==='function'&&document.getElementById('s5'))applyPhases();
+}
+
+/* ---------- Q1 chart + table ---------- */
+function initQ1(){
+  $('#c1leg').innerHTML=SER.map(s=>`<label><input type="checkbox" data-s="${s.id}" ${S['on_'+s.id]??s.on?'checked':''}><span class="sw" style="background:${s.c}"></span>${esc(s.n)}</label>`).join('');
+  $('#c1leg').addEventListener('change',e=>{S['on_'+e.target.dataset.s]=e.target.checked?1:0;save();drawC1()});
+  $('#c1y').addEventListener('input',drawC1);
+  drawC1();
+  $('#prodtbl').innerHTML='<tr><th>Producto</th><th>Clasificación</th></tr>'+PRODS.map((p,i)=>`<tr><td>${esc(p)}</td><td><select data-pr="${i}">${['—','Principal','Derivado','No está en el caso'].map(o=>`<option ${S.prod[i]===o?'selected':''}>${o}</option>`).join('')}</select></td></tr>`).join('');
+  $('#prodtbl').addEventListener('change',e=>{if(e.target.dataset.pr!==undefined){S.prod[e.target.dataset.pr]=e.target.value;save()}});
+}
+function drawC1(){
+  const on=SER.filter(s=>$(`#c1leg input[data-s="${s.id}"]`).checked);
+  const y=+$('#c1y').value;$('#c1yv').textContent=YEARS[y];
+  const W=560,H=280,L=40,R=12,T=14,B=30;
+  const mx=Math.max(100,...on.flatMap(s=>s.v));const top=Math.ceil(mx/100)*100;
+  const X=i=>L+i*(W-L-R)/7,Y=v=>T+(H-T-B)*(1-v/top);
+  let g='';
+  for(let k=0;k<=4;k++){const v=top*k/4;g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#e3e0d6"/><text x="${L-6}" y="${Y(v)+4}" font-size="10" text-anchor="end" fill="#667">${v}</text>`}
+  YEARS.forEach((yr,i)=>g+=`<text x="${X(i)}" y="${H-10}" font-size="9.5" text-anchor="middle" fill="#667">${yr.slice(2)}</text>`);
+  g+=`<line x1="${X(y)}" x2="${X(y)}" y1="${T}" y2="${H-B}" stroke="#A50044" stroke-dasharray="4 3"/>`;
+  on.forEach(s=>{
+    g+=`<polyline fill="none" stroke="${s.c}" stroke-width="2.4" ${s.d?'stroke-dasharray="6 4"':''} points="${s.v.map((v,i)=>X(i)+','+Y(v)).join(' ')}"/>`;
+    g+=`<circle cx="${X(y)}" cy="${Y(s.v[y])}" r="4.5" fill="${s.c}" stroke="#fff" stroke-width="1.5"/>`;
+  });
+  $('#c1').innerHTML=g;
+  $('#c1read').innerHTML=on.length?on.map(s=>`<span style="color:${s.c};font-weight:700">●</span> ${esc(s.n)}: <b>≈ €${s.v[y]}M</b>`).join(' &nbsp; '):'Activen al menos una línea.';
+}
+
+/* ---------- generic chip assignment ---------- */
+function chipAssign(cfg){
+  const {id,bankEl,gridEl,chips,blocks,verifyBtn,scoreEl,noteEl,classOf}=cfg;
+  S.assign[id]=S.assign[id]||{};
+  const A=S.assign[id];
+  const label=bid=>blocks.find(b=>b[0]===bid)[1];
+  function render(){
+    const rest=chips.map((c,i)=>[c,i]).filter(([c,i])=>!(i in A));
+    $(bankEl).innerHTML=rest.length?rest.map(([c,i])=>`<button type="button" class="chip ${S.sel&&S.sel.id===id&&S.sel.i===i?'sel':''}" data-i="${i}">${esc(c[0])}</button>`).join(''):'<span class="muted">Todas las fichas colocadas ✔</span>';
+    $(gridEl).classList.toggle('armed',!!(S.sel&&S.sel.id===id));
+    $(gridEl).innerHTML=blocks.map(b=>`<div class="drop ${b[2]||''} ${classOf?classOf(b):''}" data-b="${b[0]}"><h4>${esc(b[1])}</h4>${Object.entries(A).filter(([i,bid])=>bid===b[0]).map(([i])=>{
+      const c=chips[i];const v=S.verified[id];const ok=c[1].includes(b[0]);
+      return `<span class="tag ${v?(ok?'ok':'no'):''}" data-t="${i}">${v?(ok?'✔ ':'✘ '):''}${esc(c[0])}${v&&!ok?`<small>Va en: ${c[1].map(label).join(' / ')}</small>`:''}</span>`}).join('')}</div>`).join('');
+    progress();
+  }
+  $(bankEl).addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;S.sel={id,i:+c.dataset.i};render()});
+  $(gridEl).addEventListener('click',e=>{
+    const t=e.target.closest('.tag');
+    const armed=S.sel&&S.sel.id===id;
+    if(t&&!armed){delete A[t.dataset.t];S.verified[id]=false;$(scoreEl).textContent='';save();render();return}
+    const d=e.target.closest('.drop');
+    if(d&&S.sel&&S.sel.id===id){A[S.sel.i]=d.dataset.b;S.sel=null;S.verified[id]=false;$(scoreEl).textContent='';save();render()}
+  });
+  $(verifyBtn).addEventListener('click',()=>{
+    const n=Object.keys(A).length;
+    if(n<chips.length){$(scoreEl).innerHTML=`<span class="warn">Coloquen las ${chips.length} fichas (van ${n}).</span>`;return}
+    S.verified[id]=true;save();render();
+    const ok=Object.entries(A).filter(([i,b])=>chips[i][1].includes(b)).length;
+    $(scoreEl).textContent=`${ok} / ${chips.length} correctas`;
+    if(noteEl)$(noteEl).textContent='Las fichas en rojo indican dónde las ubica el caso; discutan por qué se equivocaron (puede haber más de un bloque defendible).';
+  });
+  render();
+  if(S.verified[id]){const ok=Object.entries(A).filter(([i,b])=>chips[i][1].includes(b)).length;$(scoreEl).textContent=`${ok} / ${chips.length} correctas`}
+}
+
+/* ---------- Q3 ---------- */
+function initQ3(){
+  $('#archacc').innerHTML=ARCH.map((a,i)=>`<details ${S.f['a'+i+'x']||S.f['a'+i+'y']?'open':''}><summary>${esc(a[0])}</summary><p class="muted">${esc(a[1])}</p>
+   <label class="fl">¿Qué hace el club con este bloque?</label><textarea data-k="a${i}x"></textarea>
+   <label class="fl">¿Qué problema crea para integrar datos?</label><textarea data-k="a${i}y"></textarea></details>`).join('');
+  $$('#archacc textarea').forEach(t=>t.setAttribute('data-req','1'));
+}
+
+/* ---------- Q4 radar ---------- */
+function initQ4(){
+  $('#radarctl').innerHTML=RADAR.map((r,i)=>`<div class="card" style="margin:6px 0;padding:10px 12px">
+   <b>${esc(r[0])}</b><div class="muted" style="font-size:12.5px">${esc(r[1])}</div>
+   <div class="sl"><label style="color:var(--garnet)">Barça</label><b id="rb${i}v"></b><input type="range" min="0" max="5" step="1" value="${S.f['rb'+i]??2}" data-k="rb${i}" style="grid-column:1/3"></div>
+   <div class="sl"><label style="color:var(--blue)">Referencia</label><b id="rr${i}v" style="color:var(--blue)"></b><input type="range" style="accent-color:var(--blue);grid-column:1/3" min="0" max="5" step="1" value="${S.f['rr'+i]??5}" data-k="rr${i}"></div>
+   <textarea data-k="re${i}" placeholder="Evidencia del caso" style="min-height:52px" data-req></textarea></div>`).join('');
+  $('#radarctl').addEventListener('input',e=>{if(e.target.type==='range')drawRadar()});
+}
+function drawRadar(){
+  const R=120,n=RADAR.length;const pt=(i,v)=>{const a=(-90+i*360/n)*Math.PI/180;return[Math.cos(a)*R*v/5,Math.sin(a)*R*v/5]};
+  let g='';
+  for(let k=1;k<=5;k++)g+=`<polygon points="${RADAR.map((_,i)=>pt(i,k).join(',')).join(' ')}" fill="none" stroke="#d9d5c8"/>`;
+  RADAR.forEach((r,i)=>{const [x,y]=pt(i,5.9);g+=`<line x1="0" y1="0" x2="${pt(i,5)[0]}" y2="${pt(i,5)[1]}" stroke="#d9d5c8"/><text x="${x}" y="${y}" font-size="10.5" text-anchor="middle" fill="#334">${esc(r[0])}</text>`});
+  const rb=RADAR.map((_,i)=>+($(`[data-k=rb${i}]`).value)),rr=RADAR.map((_,i)=>+($(`[data-k=rr${i}]`).value));
+  rb.forEach((v,i)=>$('#rb'+i+'v').textContent=v);rr.forEach((v,i)=>$('#rr'+i+'v').textContent=v);
+  const poly=(arr,c,f)=>`<polygon points="${arr.map((v,i)=>pt(i,v).join(',')).join(' ')}" fill="${f}" stroke="${c}" stroke-width="2.4"/>`;
+  g+=poly(rr,'#004D98','#004D9822')+poly(rb,'#A50044','#A5004433');
+  $('#radar').innerHTML=g;
+  const gaps=rb.map((v,i)=>rr[i]-v);const mi=gaps.indexOf(Math.max(...gaps));
+  const avg=(rb.reduce((a,b)=>a+b)/n).toFixed(1),avr=(rr.reduce((a,b)=>a+b)/n).toFixed(1);
+  $('#radartxt').innerHTML=`Promedio Barça <b>${avg}</b> vs. referencia <b>${avr}</b>. Mayor brecha: <b>${esc(RADAR[mi][0])}</b> (${gaps[mi]} puntos).`;
+}
+
+/* ---------- Q5 sim ---------- */
+function initQ5(){
+  const fmt=n=>n>=1e9?(n/1e9).toFixed(2)+' B':n>=1e6?(n/1e6).toFixed(1)+' M':n>=1e3?Math.round(n/1e3)+' mil':Math.round(n);
+  const upd=()=>{
+    const p=+$('#f1').value,c=+$('#f2').value,a=+$('#f3').value;
+    $('#f1v').textContent=p+'%';$('#f2v').textContent=c+'%';$('#f3v').textContent='€'+a;
+    const fans=300e6*p/100,buy=fans*c/100,rev=buy*a;
+    $('#fo1').textContent=fmt(fans);$('#fo2').textContent=fmt(buy);
+    $('#fo3').textContent='€'+fmt(rev);$('#fo4').textContent=(100*rev/1e9).toFixed(1)+'%';
+  };
+  ['f1','f2','f3'].forEach(i=>$('#'+i).addEventListener('input',upd));upd();window._q5=upd;
+}
+
+/* ---------- Q6 ---------- */
+function initQ6(){
+  $('#decs').innerHTML=DECS.map((d,i)=>`<div class="card" style="margin:8px 0"><b>${i+1}. ${esc(d[0])}</b><div class="leg" style="margin-top:8px">${SRC.map(s=>`<label class="chip" style="cursor:pointer"><input type="checkbox" data-d="${i}" value="${esc(s)}" ${(S.sources[i]||[]).includes(s)?'checked':''}> ${esc(s)}</label>`).join('')}</div></div>`).join('');
+  $('#decs').addEventListener('change',e=>{const i=e.target.dataset.d;if(i===undefined)return;S.sources[i]=$$(`[data-d="${i}"]:checked`).map(c=>c.value);save()});
+  $('#decshow').addEventListener('click',()=>{const b=$('#decsol');b.style.display='block';b.innerHTML='<b>Una posible respuesta (no es la única):</b><ol>'+DECSOL.map(s=>`<li>${esc(s)}</li>`).join('')+'</ol>'});
+}
+
+/* ---------- Q7 ---------- */
+function initQ7(){
+  $('#govbars').innerHTML=[["Fuentes externas integradas",5,49,"5 → 49 (2018)",49/60],["Datos automatizados",0,40,"40% (meta 2021: 100%)",.40],["Ciclo de encuesta trimestral",45,10,"45 días → meta 10",10/45]].map(b=>`<div class="kpi"><small>${b[0]}</small><div style="font-weight:700">${b[3]}</div><div class="bar" style="margin-top:6px"><i class="${b[0].startsWith('Ciclo')?'g':''}" style="width:${Math.round(b[4]*100)}%"></i></div></div>`).join('');
+  $('#govtbl').innerHTML='<tr><th>Área</th><th>Evidencia del caso</th><th style="width:90px">Gravedad 0–3</th><th>Cómo lo solucionarían</th></tr>'+GOV.map((g,i)=>`<tr><td><b>${g[0]}</b></td><td class="muted">${esc(g[1])}</td><td><select data-k="gv${i}" data-req>${['','0','1','2','3'].map(o=>`<option>${o}</option>`).join('')}</select></td><td><textarea data-k="gs${i}" data-req></textarea></td></tr>`).join('');
+  $('#owntbl').innerHTML='<tr><th>Dato</th><th>Quién lo controla</th><th>Estado hoy</th><th>Mecanismo para recuperar acceso</th></tr>'+OWN.map((o,i)=>`<tr><td>${esc(o[0])}</td><td>${esc(o[1])}</td><td><select data-k="os${i}">${['—',...OWNSTAT].map(x=>`<option>${x}</option>`).join('')}</select></td><td><select data-k="om${i}">${['—',...OWNMECH].map(x=>`<option>${x}</option>`).join('')}</select></td></tr>`).join('');
+}
+
+/* ---------- Q8 ---------- */
+function initQ8(){
+  $('#silotbl').innerHTML='<tr><th>Tipo de silo</th><th>Solución (elijan una)</th><th>¿Es suficiente solo con tecnología? ¿Qué más hace falta?</th></tr>'+SILOS.map((s,i)=>`<tr><td>${esc(s[0])}</td><td><select data-k="sl${i}">${TECHOPT.map(o=>`<option>${o}</option>`).join('')}</select></td><td><textarea data-k="sx${i}" style="min-height:48px"></textarea></td></tr>`).join('');
+}
+
+/* ---------- Q9 ---------- */
+function initQ9(){
+  const box=$('#mechs');
+  const draw=()=>{
+    box.innerHTML=MECHS.map((m,i)=>`<label class="opt ${S.mech.includes(i)?'sel':''}"><input type="checkbox" value="${i}" ${S.mech.includes(i)?'checked':''}><span>${esc(m)}</span></label>`).join('');
+    $('#mechcount').innerHTML=S.mech.length===3?'<span class="good">3 / 3 elegidos</span>':`${S.mech.length} / 3 elegidos`;progress();
+  };
+  box.addEventListener('change',e=>{
+    const i=+e.target.value;
+    if(e.target.checked){if(S.mech.length>=3){e.target.checked=false;return}S.mech.push(i)}else S.mech=S.mech.filter(x=>x!==i);
+    save();draw();
+  });
+  draw();
+}
+
+/* ---------- Q10 RACI ---------- */
+function initQ10(){
+  $('#raci').innerHTML='<tr><th>Iniciativa</th>'+ROLES.map(r=>`<th>${esc(r)}</th>`).join('')+'</tr>'+INIT.map((it,i)=>`<tr><td><b>${esc(it)}</b></td>${ROLES.map((r,j)=>`<td><select data-c="${i}-${j}">${['–','R','A','C','I'].map(o=>`<option ${S.cells[i+'-'+j]===o?'selected':''}>${o}</option>`).join('')}</select></td>`).join('')}</tr>`).join('');
+  $('#raci').addEventListener('change',e=>{if(e.target.dataset.c){S.cells[e.target.dataset.c]=e.target.value;save();raciCheck()}});
+  raciCheck();
+}
+function raciCheck(){
+  const msgs=INIT.map((it,i)=>{
+    const v=ROLES.map((r,j)=>S.cells[i+'-'+j]||'–');
+    const a=v.filter(x=>x==='A').length,r=v.filter(x=>x==='R').length;
+    if(a===0)return`<div class="warn">• ${esc(it)}: falta un “A” (nadie responde).</div>`;
+    if(a>1)return`<div class="warn">• ${esc(it)}: hay ${a} “A”; debe haber uno solo.</div>`;
+    if(r===0)return`<div class="warn">• ${esc(it)}: nadie ejecuta (falta “R”).</div>`;
+    return`<div class="good">• ${esc(it)}: ✔</div>`;
+  });
+  $('#racichk').innerHTML=msgs.join('');
+}
+
+/* ---------- debate ---------- */
+function initDebate(){
+  const draw=()=>{
+    $('#debtbl').innerHTML='<tr><th style="width:24%">Integrante</th><th style="width:22%">Postura</th><th>Argumento (con evidencia del caso)</th></tr>'+S.deb.map((d,i)=>`<tr><td><input type="text" data-d2="${i}.n" value="${esc(d.n||'')}" placeholder="Nombre"></td><td><select data-d2="${i}.p">${['—','Monetizar primero','Proteger primero','Equilibrio'].map(o=>`<option ${d.p===o?'selected':''}>${o}</option>`).join('')}</select></td><td><textarea data-d2="${i}.a" style="min-height:60px">${esc(d.a||'')}</textarea></td></tr>`).join('');
+    sumDeb();
+  };
+  const sumDeb=()=>{const c={};S.deb.forEach(d=>{if(d.p&&d.p!=='—')c[d.p]=(c[d.p]||0)+1});$('#debsum').textContent=Object.entries(c).map(([k,v])=>`${k}: ${v}`).join(' · ')};
+  $('#debtbl').addEventListener('input',e=>{const t=e.target.dataset.d2;if(!t)return;const [i,k]=t.split('.');S.deb[i][k]=e.target.value;save();sumDeb()});
+  $('#adddeb').addEventListener('click',()=>{S.deb.push({});save();draw()});
+  draw();
+}
+
+/* ---------- section 4 ---------- */
+function fillConclusion(){
+  $('#rp1').textContent=S.f.p1||'';
+  $('#rp2').textContent=(P2.find(p=>p[0]===S.p2)||[0,''])[1]+' — '+(S.f.p2why||'');
+  const rows=[["Fuentes de datos externas integradas (2018)",S.f.e1,REAL.e1,''],["% de datos automatizado (mediados 2019)",S.f.e2touched||S.f.e2!==undefined?S.f.e2:'',REAL.e2,'%'],["Dashboards del equipo de datos",S.f.e3,REAL.e3,'+']];
+  $('#esttbl').innerHTML='<tr><th>Dato</th><th>Su estimado</th><th>Caso</th><th>Desviación</th></tr>'+rows.map(r=>{
+    const g=r[1]===''||r[1]===undefined?null:+r[1];const dev=g==null?'—':(((g-r[2])/r[2])*100).toFixed(0)+'%';
+    const bad=g!=null&&Math.abs((g-r[2])/r[2])>.5;
+    return `<tr><td>${r[0]}</td><td>${g==null?'—':g}${r[3]=='%'?'%':''}</td><td><b>${r[2]}${r[3]=='%'?'%':r[3]=='+'?'+':''}</b></td><td class="${bad?'warn':'good'}">${dev}</td></tr>`}).join('');
+}
+
+/* ---------- misc ---------- */
+function initNav(){
+  const ids=['s1','s2','s3','s4','s5'],links=$$('#nav a');
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id))}),{rootMargin:'-30% 0px -60% 0px'});
+  ids.forEach(i=>io.observe(document.getElementById(i)));
+}
+function initPdf(){
+  $('#pdfbtn').addEventListener('click',()=>{
+    const miss=$$('[data-req]').filter(r=>!String(r.value||'').trim()).length;
+    if(!$('#g_name').value.trim()||!$('#g_members').value.trim()){$('#finmsg').innerHTML='<span style="color:#ffd">Escriban el nombre del grupo y los integrantes arriba.</span>';window.scrollTo({top:0,behavior:'smooth'});return}
+    if(miss&&!confirm(`Hay ${miss} respuestas vacías. ¿Generar el PDF de todas formas?`))return;
+    syncPrint();window.print();
+  });
+  window.addEventListener('beforeprint',syncPrint);
+}
+
+
+/* ---------- fases, salas y claves ---------- */
+/* CLAVES: guardadas como hash. Para cambiarlas, abrir la consola del navegador y ejecutar hashPw("nueva clave");
+   luego pegar el resultado en GATE. Es un control de ritmo de clase, no seguridad. */
+function h53(str,seed=0){let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);return(4294967296*(2097151&h2)+(h1>>>0)).toString(36)}
+function hashPw(x){return h53('barca26|'+String(x).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,''))}
+const GATE={2:'cuwtpnbbu1',3:'k3eoprkx1i',4:'1mchjrj741l',5:'h1fw3r0ybg'};
+const PHNAME={1:'Antes de leer',2:'El negocio',3:'Datos y organización',4:'Debate',5:'Conclusiones'};
+const ROLES3=`<div class="roles"><div><b>Relator</b><br>Llena el formulario y comparte pantalla.</div><div><b>Cronometrista</b><br>Cuida el tiempo de cada pregunta.</div><div><b>Voz crítica</b><br>Pregunta: “¿dónde dice eso el caso?”</div></div>`;
+const ROOMS={
+ 1:{t:'Sala 1 · Predicción',min:15,goal:'Dejar por escrito una predicción antes de que el caso la corrija.',steps:['<b>4 min en silencio:</b> cada integrante responde P1 a P3 por su cuenta (en papel o notas).','<b>8 min en sala:</b> cada quien lee su plan en 1–2 minutos. El relator escribe en el formulario el plan del grupo.','<b>3 min:</b> bloqueen las respuestas, vuelvan a la sala principal y pidan la clave al profesor.'],q:'¿En qué difieren sus planes y por qué?'},
+ 2:{t:'Sala 2 · El negocio del club',min:35,goal:'Entender cómo gana dinero el Barça y qué tan lejos está de Netflix, Google y Apple.',steps:['Cada integrante <b>lidera una pregunta</b> (P1 a P5) y rota el liderazgo; unos 6 minutos por pregunta.','El líder lee la pregunta, propone una respuesta con evidencia del caso y el grupo la reta.','En P2 (canvas) y P4 (radar) decidan por consenso; si no llegan, voten y anoten el desacuerdo.','Al terminar, pidan la clave de la Fase 3.'],q:'¿Qué parte del modelo de negocio depende más de que el equipo gane?'},
+ 3:{t:'Sala 3 · Datos y organización',min:35,goal:'Diagnosticar la gobernanza de datos del club y decidir quién debe hacerse cargo.',steps:['Mismo ritmo: <b>un líder por pregunta</b> (P6 a P10), unos 6 minutos cada una.','P7 (gobernanza) y P10 (RACI) son las que más debate generan; reserven tiempo para ellas.','En la matriz RACI cada fila necesita un solo “A”. Discutan quién responde, no solo quién ayuda.','Al terminar, pidan la clave de la Fase 4.'],q:'¿Qué reto de datos es más difícil de resolver con tecnología?'},
+ 4:{t:'Sala 4 · Debate',min:15,goal:'Defender una postura con evidencia, aunque no sea la propia.',steps:['<b>2 min:</b> cada integrante toma una postura (por sorteo) y escribe su argumento con evidencia del caso.','<b>5 min:</b> cada quien presenta su argumento sin interrupciones.','<b>5 min:</b> discusión libre y conclusión del grupo con condiciones.','Pidan la clave de la Fase 5.'],q:'¿Alguien cambió de postura durante el debate?'},
+ 5:{t:'Sala 5 · Aprendizaje',min:15,goal:'Comparar lo que sabían al inicio con lo que aprendieron.',steps:['<b>5 min individuales:</b> cada quien responde las preguntas de reflexión (a a f).','<b>7 min en sala:</b> comparen sus respuestas y escojan el aprendizaje más importante.','<b>3 min:</b> generen el PDF del grupo y súbanlo a Teams.'],q:'¿Qué cambiaron de su plan inicial y qué mantendrían?'}
+};
+function normPw(x){return String(x||'').trim()}
+function unlockBox(n){
+  const next=n+1;
+  return `<h3>🔑 Clave de la Fase ${next} · ${esc(PHNAME[next])}</h3><p class="muted" style="margin:0 0 8px">${n===1?'Primero bloqueen sus respuestas iniciales. Luego el profesor les da la clave.':'Cuando terminen esta fase, el profesor les da la clave.'}</p><div class="row"><input type="text" id="pw${next}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escriban la clave" aria-label="Clave de la Fase ${next}"><button type="button" data-unlock="${next}">Desbloquear</button><span class="pwmsg" id="pwm${next}"></span></div>`;
+}
+function initPhases(){
+  $$('.room').forEach(r=>{
+    const n=+r.dataset.room,d=ROOMS[n];
+    r.innerHTML=`<h3>🧑‍🤝‍🧑 ${esc(d.t)}</h3><div class="meta"><span>⏱ ${d.min} min sugeridos</span><span class="alt">Breakout room</span></div><p style="margin:0 0 4px"><b>Objetivo:</b> ${esc(d.goal)}</p><ol>${d.steps.map(x=>`<li>${x}</li>`).join('')}</ol><p style="margin:4px 0"><b>Pregunta para cerrar la sala:</b> ${esc(d.q)}</p>${ROLES3}`;
+  });
+  $$('.lockph').forEach(l=>{
+    const n=+l.dataset.lock;
+    l.innerHTML=`<div class="big">🔒</div><h3>Fase ${n} · ${esc(PHNAME[n])}</h3><p style="margin:0">Se abre con la clave que da el profesor al terminar la Fase ${n-1}.</p>`;
+  });
+  $$('.unlock').forEach(u=>{u.innerHTML=unlockBox(+u.dataset.next-1)});
+  document.body.addEventListener('click',e=>{
+    const b=e.target.closest('[data-unlock]');if(!b)return;
+    const n=+b.dataset.unlock,inp=$('#pw'+n),msg=$('#pwm'+n);
+    if(n===2&&!S.locked){msg.innerHTML='<span class="warn">Primero bloqueen las respuestas de la Fase 1.</span>';return}
+    if(hashPw(normPw(inp.value))===GATE[n]){
+      S.unlocked[n]=true;save();applyPhases();
+      const t=document.getElementById('s'+n);setTimeout(()=>t.scrollIntoView({behavior:'smooth',block:'start'}),50);
+    }else{
+      msg.innerHTML='<span class="warn">Clave incorrecta. Pídela al profesor.</span>';
+      inp.classList.remove('shake');void inp.offsetWidth;inp.classList.add('shake');
+    }
+  });
+  $$('.unlock input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();i.parentElement.querySelector('button').click()}}));
+}
+function applyPhases(){
+  [1,2,3,4,5].forEach(n=>{
+    const sec=document.getElementById('s'+n),open=!!S.unlocked[n];
+    sec.classList.toggle('locked',!open);
+    const a=$(`#nav a[data-n="${n}"]`);if(a)a.classList.toggle('lk',!open);
+    const u=$(`.unlock[data-next="${n+1}"]`);
+    if(u){
+      const done=!!S.unlocked[n+1];
+      u.classList.toggle('off',n===1&&!S.locked);
+      u.style.display=done?'none':'';
+    }
+  });
+  $('#finish').classList.toggle('hide',!S.unlocked[5]);
+  if(S.unlocked[5])fillConclusion();
+}
+
+/* ---------- boot ---------- */
+function boot(){
+  initPhases();initPre();initQ1();initQ3();initQ4();initQ5();initQ6();initQ7();initQ8();initQ9();initQ10();initDebate();
+  chipAssign({id:'bmc',bankEl:'#bmcbank',gridEl:'#bmcgrid',chips:BMCCHIPS,blocks:BMC,verifyBtn:'#bmcverify',scoreEl:'#bmcscore',noteEl:'#bmcnote'});
+  chipAssign({id:'org',bankEl:'#orgbank',gridEl:'#orggrid',chips:ORGB,blocks:ORGCOLS.map(c=>[c[0],c[1],'']),verifyBtn:'#orgverify',scoreEl:'#orgscore'});
+  bindFields();
+  // restore selects/inputs bound by data-k that are not textareas
+  drawRadar();window._q5();$('#e2v').textContent=$('#e2').value+'%';
+  applyLock();initNav();initPdf();progress();
+}
+boot();
+</script>
+</body>
+</html>
