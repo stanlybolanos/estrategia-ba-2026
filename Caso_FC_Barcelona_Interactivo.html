@@ -221,7 +221,7 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
 <div class="card" style="margin-top:22px">
   <h3>Cómo funciona</h3>
   <p>La actividad tiene <b>5 fases</b>. Cada fase se trabaja en una <b>sala de trabajo (breakout room)</b> con su grupo. Al terminar una fase, el profesor da la <b>clave</b> que abre la siguiente. La Fase 1 se contesta <u>antes</u> de leer el caso y se bloquea al guardarla; la Fase 5 la compara con lo que aprendieron.</p>
-  <p><b>Un moderador por sala</b> llena el formulario y comparte pantalla; los demás aportan en voz alta. Lo que se escribe se guarda automáticamente en el navegador del moderador. Al final se genera el PDF y se sube a Teams.</p>
+  <p><b>Un moderador por sala</b> llena el formulario y comparte pantalla; los demás aportan en voz alta. Lo que se escribe se guarda automáticamente en el navegador del moderador. Al final se genera el PDF y se sube a Moodle.</p>
   <p class="noprint" id="resetallrow"><button type="button" class="ghost danger" id="resetall">↺ Reiniciar todo el caso</button> <span class="muted">Borra todas las respuestas y vuelve a cerrar las fases 2 a 5.</span></p>
   <p class="muted">Material: caso IESE <i>FC Barcelona: More Than a Club, More Than Data</i> (IES861). Las cifras de gráficos marcadas con “≈” son aproximaciones leídas de los exhibits; verifíquenlas en el caso antes de citarlas.</p>
 </div>
@@ -558,7 +558,7 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
 
 <div class="finish noprint hide" id="finish">
   <h2 style="color:#fff">Entrega</h2>
-  <p>Cuando todo esté completo: <b>Generar PDF</b> → en la ventana de impresión elijan “Guardar como PDF” → súbanlo a Teams con el nombre de su grupo.</p>
+  <p>Cuando todo esté completo: <b>Generar PDF</b> → en la ventana de impresión elijan “Guardar como PDF” → súbanlo a Moodle con el nombre de su grupo.</p>
   <div class="row"><button id="pdfbtn">📄 Generar PDF para entregar</button><span id="finmsg"></span></div>
 </div>
 
@@ -1023,7 +1023,7 @@ const ROOMS={
  2:{t:'Sala 2 · El negocio del club',min:40,goal:'Entender cómo gana dinero el Barça y qué tan lejos está de Netflix, Google y Apple.',steps:['Cada integrante <b>lidera una pregunta</b> (P1 a P5) y rota el liderazgo; unos 6 minutos por pregunta.','El líder lee la pregunta, propone una respuesta con evidencia del caso y el grupo la reta.','En P2 y P2B (canvas y mapa de datos propios) y en P4 (radar) decidan por consenso; si no llegan, voten y anoten el desacuerdo.','Al terminar, pidan la clave de la Fase 3.'],q:'¿Qué parte del modelo de negocio depende más de que el equipo gane?'},
  3:{t:'Sala 3 · Datos y organización',min:40,goal:'Diagnosticar la gobernanza de datos del club y decidir quién debe hacerse cargo.',steps:['Mismo ritmo: <b>un líder por pregunta</b> (P6 a P10), unos 6 minutos cada una.','P7, P7B (hoja de ruta) y P10 (RACI) son las que más debate generan; reserven tiempo para ellas.','En la matriz RACI cada fila necesita un solo “A”. Discutan quién responde, no solo quién ayuda.','Al terminar, pidan la clave de la Fase 4.'],q:'¿Qué reto de datos es más difícil de resolver con tecnología?'},
  4:{t:'Sala 4 · Debate',min:15,goal:'Defender una postura con evidencia, aunque no sea la propia.',steps:['<b>2 min:</b> cada integrante toma una postura (por sorteo) y escribe su argumento con evidencia del caso.','<b>5 min:</b> cada quien presenta su argumento sin interrupciones.','<b>5 min:</b> discusión libre y conclusión del grupo con condiciones.','Pidan la clave de la Fase 5.'],q:'¿Alguien cambió de postura durante el debate?'},
- 5:{t:'Sala 5 · Aprendizaje',min:15,goal:'Comparar lo que sabían al inicio con lo que aprendieron.',steps:['<b>5 min individuales:</b> cada quien responde las preguntas de reflexión (a a f).','<b>7 min en sala:</b> comparen sus respuestas y escojan el aprendizaje más importante.','<b>3 min:</b> generen el PDF del grupo y súbanlo a Teams.'],q:'¿Qué cambiaron de su plan inicial y qué mantendrían?'}
+ 5:{t:'Sala 5 · Aprendizaje',min:15,goal:'Comparar lo que sabían al inicio con lo que aprendieron.',steps:['<b>5 min individuales:</b> cada quien responde las preguntas de reflexión (a a f).','<b>7 min en sala:</b> comparen sus respuestas y escojan el aprendizaje más importante.','<b>3 min:</b> generen el PDF del grupo y súbanlo a Moodle.'],q:'¿Qué cambiaron de su plan inicial y qué mantendrían?'}
 };
 function normPw(x){return String(x||'').trim()}
 function unlockBox(n){
