@@ -107,9 +107,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 /* chips and blocks */
 .bank{display:flex;flex-wrap:wrap;gap:8px;padding:10px;border:2px dashed #b9c4d8;border-radius:12px;background:#fbfcfe;min-height:54px}
-.chip{border:1px solid #9db3d6;background:#fff;border-radius:999px;padding:5px 12px;font-size:13.5px;cursor:pointer;line-height:1.3;text-align:left}
+.chip{color:#1b2438;border:1px solid #9db3d6;background:#fff;border-radius:999px;padding:5px 12px;font-size:13.5px;cursor:pointer;line-height:1.3;text-align:left}
 .chip:hover{background:var(--soft)}
-.chip.sel{background:var(--gold);border-color:#b58f00;font-weight:600;box-shadow:0 0 0 3px #edbb0055}
+.chip.sel{color:#1b2438;background:var(--gold);border-color:#b58f00;font-weight:600;box-shadow:0 0 0 3px #edbb0055}
 .drop{border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:10px;min-height:96px;cursor:pointer;transition:.15s}
 .drop h4{margin:0 0 6px;font-size:14px;color:var(--blue-d)}
 .drop:hover,.armed .drop{border-color:var(--gold);background:#fffbe8}
@@ -209,7 +209,7 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
 <div class="card" style="margin-top:22px">
   <h3>Cómo funciona</h3>
   <p>La actividad tiene <b>5 fases</b>. Cada fase se trabaja en una <b>sala de trabajo (breakout room)</b> con su grupo. Al terminar una fase, el profesor da la <b>clave</b> que abre la siguiente. La Fase 1 se contesta <u>antes</u> de leer el caso y se bloquea al guardarla; la Fase 5 la compara con lo que aprendieron.</p>
-  <p><b>Un relator por sala</b> llena el formulario y comparte pantalla; los demás aportan en voz alta. Lo que se escribe se guarda automáticamente en el navegador del relator. Al final se genera el PDF y se sube a Teams.</p>
+  <p><b>Un moderador por sala</b> llena el formulario y comparte pantalla; los demás aportan en voz alta. Lo que se escribe se guarda automáticamente en el navegador del moderador. Al final se genera el PDF y se sube a Teams.</p>
   <p class="muted">Material: caso IESE <i>FC Barcelona: More Than a Club, More Than Data</i> (IES861). Las cifras de gráficos marcadas con “≈” son aproximaciones leídas de los exhibits; verifíquenlas en el caso antes de citarlas.</p>
 </div>
 
@@ -414,11 +414,9 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
   </div>
   <div class="unlock" data-next="4"></div>
   </div>
-  <div class="unlock" data-next="5"></div>
-  </div>
 </section>
 
-<!-- ============ 5 ============ -->
+<!-- ============ 4 ============ -->
 <section class="step phase locked" id="s4" data-ph="4">
   <div class="lockph" data-lock="4"></div>
   <div class="pbody">
@@ -433,9 +431,11 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
     <label class="fl" for="debc">Conclusión del grupo: ¿con qué condiciones sí y con cuáles no?</label>
     <textarea id="debc" data-k="debc" data-req></textarea>
   </div>
+  <div class="unlock" data-next="5"></div>
+  </div>
 </section>
 
-<!-- ============ 4 ============ -->
+<!-- ============ 5 ============ -->
 <section class="step phase locked" id="s5" data-ph="5">
   <div class="lockph" data-lock="5"></div>
   <div class="pbody">
@@ -899,9 +899,9 @@ function h53(str,seed=0){let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,c
 function hashPw(x){return h53('barca26|'+String(x).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,''))}
 const GATE={2:'cuwtpnbbu1',3:'k3eoprkx1i',4:'1mchjrj741l',5:'h1fw3r0ybg'};
 const PHNAME={1:'Antes de leer',2:'El negocio',3:'Datos y organización',4:'Debate',5:'Conclusiones'};
-const ROLES3=`<div class="roles"><div><b>Relator</b><br>Llena el formulario y comparte pantalla.</div><div><b>Cronometrista</b><br>Cuida el tiempo de cada pregunta.</div><div><b>Voz crítica</b><br>Pregunta: “¿dónde dice eso el caso?”</div></div>`;
+const ROLES3=`<div class="roles"><div><b>Moderador</b><br>Llena el formulario y comparte pantalla.</div><div><b>Cronometrista</b><br>Cuida el tiempo de cada pregunta.</div><div><b>Voz crítica</b><br>Pregunta: “¿dónde dice eso el caso?”</div></div>`;
 const ROOMS={
- 1:{t:'Sala 1 · Predicción',min:15,goal:'Dejar por escrito una predicción antes de que el caso la corrija.',steps:['<b>4 min en silencio:</b> cada integrante responde P1 a P3 por su cuenta (en papel o notas).','<b>8 min en sala:</b> cada quien lee su plan en 1–2 minutos. El relator escribe en el formulario el plan del grupo.','<b>3 min:</b> bloqueen las respuestas, vuelvan a la sala principal y pidan la clave al profesor.'],q:'¿En qué difieren sus planes y por qué?'},
+ 1:{t:'Sala 1 · Predicción',min:15,goal:'Dejar por escrito una predicción antes de que el caso la corrija.',steps:['<b>4 min en silencio:</b> cada integrante responde P1 a P3 por su cuenta (en papel o notas).','<b>8 min en sala:</b> cada quien lee su plan en 1–2 minutos. El moderador escribe en el formulario el plan del grupo.','<b>3 min:</b> bloqueen las respuestas, vuelvan a la sala principal y pidan la clave al profesor.'],q:'¿En qué difieren sus planes y por qué?'},
  2:{t:'Sala 2 · El negocio del club',min:35,goal:'Entender cómo gana dinero el Barça y qué tan lejos está de Netflix, Google y Apple.',steps:['Cada integrante <b>lidera una pregunta</b> (P1 a P5) y rota el liderazgo; unos 6 minutos por pregunta.','El líder lee la pregunta, propone una respuesta con evidencia del caso y el grupo la reta.','En P2 (canvas) y P4 (radar) decidan por consenso; si no llegan, voten y anoten el desacuerdo.','Al terminar, pidan la clave de la Fase 3.'],q:'¿Qué parte del modelo de negocio depende más de que el equipo gane?'},
  3:{t:'Sala 3 · Datos y organización',min:35,goal:'Diagnosticar la gobernanza de datos del club y decidir quién debe hacerse cargo.',steps:['Mismo ritmo: <b>un líder por pregunta</b> (P6 a P10), unos 6 minutos cada una.','P7 (gobernanza) y P10 (RACI) son las que más debate generan; reserven tiempo para ellas.','En la matriz RACI cada fila necesita un solo “A”. Discutan quién responde, no solo quién ayuda.','Al terminar, pidan la clave de la Fase 4.'],q:'¿Qué reto de datos es más difícil de resolver con tecnología?'},
  4:{t:'Sala 4 · Debate',min:15,goal:'Defender una postura con evidencia, aunque no sea la propia.',steps:['<b>2 min:</b> cada integrante toma una postura (por sorteo) y escribe su argumento con evidencia del caso.','<b>5 min:</b> cada quien presenta su argumento sin interrupciones.','<b>5 min:</b> discusión libre y conclusión del grupo con condiciones.','Pidan la clave de la Fase 5.'],q:'¿Alguien cambió de postura durante el debate?'},
