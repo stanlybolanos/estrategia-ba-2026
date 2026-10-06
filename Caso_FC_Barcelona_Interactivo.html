@@ -95,6 +95,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
 #bar nav a.lk::after{content:" 🔒";font-size:11px}
 #bar nav a.lk{opacity:.7}
 .finish.hide{display:none}
+button.danger{background:#fff;color:var(--garnet);border-color:var(--garnet)}
+button.danger:hover{background:#fde8f0}
+.resetbtn{margin-left:auto;font-size:13px;padding:4px 12px}
+.resetbox{margin-left:auto;display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:14px}
+.stephead{flex-wrap:wrap}
 @keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 .shake{animation:shake .35s}
 
@@ -217,6 +222,7 @@ footer{padding:30px 0 60px;color:var(--mute);font-size:13px}
   <h3>Cómo funciona</h3>
   <p>La actividad tiene <b>5 fases</b>. Cada fase se trabaja en una <b>sala de trabajo (breakout room)</b> con su grupo. Al terminar una fase, el profesor da la <b>clave</b> que abre la siguiente. La Fase 1 se contesta <u>antes</u> de leer el caso y se bloquea al guardarla; la Fase 5 la compara con lo que aprendieron.</p>
   <p><b>Un moderador por sala</b> llena el formulario y comparte pantalla; los demás aportan en voz alta. Lo que se escribe se guarda automáticamente en el navegador del moderador. Al final se genera el PDF y se sube a Teams.</p>
+  <p class="noprint" id="resetallrow"><button type="button" class="ghost danger" id="resetall">↺ Reiniciar todo el caso</button> <span class="muted">Borra todas las respuestas y vuelve a cerrar las fases 2 a 5.</span></p>
   <p class="muted">Material: caso IESE <i>FC Barcelona: More Than a Club, More Than Data</i> (IES861). Las cifras de gráficos marcadas con “≈” son aproximaciones leídas de los exhibits; verifíquenlas en el caso antes de citarlas.</p>
 </div>
 
@@ -764,7 +770,7 @@ function initPre(){
   });
 }
 function applyLock(){
-  $$('[data-pre]').forEach(el=>{el.readOnly=S.locked;if(el.type==='range'||el.type==='radio'||el.tagName==='SELECT')el.disabled=S.locked});
+  $$('[data-pre]').forEach(el=>{el.readOnly=S.locked;if(el.type==='range'||el.type==='radio')el.disabled=S.locked;if(el.tagName==='SELECT')el.disabled=S.locked&&el.value!==''});
   $$('input[name=p2]').forEach(r=>r.disabled=S.locked);
   const b=$('#lockbtn');b.disabled=S.locked;
   $('#lockmsg').innerHTML=S.locked?`<span class="lockedmsg">✔ Respuestas bloqueadas · ${esc(S.lockedAt||'')}</span>`:'Después de bloquear ya no podrán editarlas.';
@@ -856,7 +862,7 @@ function initGsim(){
 const RKN={tec:'Tecnología',gob:'Gobernanza de datos',cul:'Cultura de datos'};
 function rkRender(){
   const ini=['tec','gob','cul'].map(k=>[k,S.f['rk1_'+k]]).filter(x=>x[1]).sort((a,b)=>a[1]-b[1]);
-  $('#rk1show').innerHTML=ini.length?ini.map(x=>`${x[1]}. ${RKN[x[0]]}`).join('<br>'):'—';
+  $('#rk1show').innerHTML=ini.length?ini.map(x=>`${x[1]}. ${RKN[x[0]]}`).join('<br>'):'Sin ranking inicial. La Fase 1 se bloqueó con una versión anterior; pueden registrarlo ahora en la P4 de la Fase 1.';
   const d=['tec','gob','cul'].map(k=>{const a=+S.f['rk1_'+k],b=+S.f['rk5_'+k];if(!a||!b)return'';
     const t=b<a?`▲ subió ${a-b}`:b>a?`▼ bajó ${b-a}`:'= sin cambio';return `${RKN[k]}: ${a} → ${b} (${t})`}).filter(Boolean);
   $('#rkdelta').innerHTML=d.join(' · ');
@@ -1048,6 +1054,42 @@ function initPhases(){
   });
   $$('.unlock input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();i.parentElement.querySelector('button').click()}}));
 }
+function saveNow(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function askConfirm(btn,msg,onYes){
+  const box=document.createElement('span');box.className='resetbox noprint';
+  box.innerHTML=`<span class="warn">${msg}</span><button type="button" class="danger" data-yes>Sí, borrar</button><button type="button" class="ghost" data-no>Cancelar</button>`;
+  btn.hidden=true;btn.after(box);
+  box.querySelector('[data-yes]').onclick=onYes;
+  box.querySelector('[data-no]').onclick=()=>{box.remove();btn.hidden=false};
+}
+function resetPhase(n){
+  const sec=document.getElementById('s'+n);
+  $$('[data-k]',sec).forEach(el=>{delete S.f[el.dataset.k]});
+  ({2:['fpd'],3:['proj','org']}[n]||[]).forEach(id=>{delete S.assign[id];delete S.verified[id]});
+  if(n===2){S.prod={};Object.keys(S).filter(k=>k.startsWith('on_')).forEach(k=>delete S[k])}
+  if(n===3){S.mech=[];S.cells={};S.sources={}}
+  if(n===4){S.deb=[{},{},{},{}]}
+  S.sel=null;saveNow();location.hash='s'+n;location.reload();
+}
+function resetAll(){
+  S.unlocked={1:true};S.f={};S.assign={};S.verified={};S.locked=false;delete S.lockedAt;delete S.p2;S.sel=null;
+  S.mech=[];S.cells={};S.prod={};S.deb=[{},{},{},{}];S.sources={};
+  Object.keys(S).filter(k=>k.startsWith('on_')).forEach(k=>delete S[k]);
+  saveNow();history.replaceState(null,'',location.pathname+location.search);location.reload();
+}
+function initReset(){
+  $$('.phase').forEach(sec=>{
+    const n=+sec.dataset.ph;if(n<2)return;
+    const b=document.createElement('button');b.type='button';b.className='ghost danger resetbtn noprint';b.dataset.reset=n;b.textContent='↺ Reiniciar esta fase';
+    $('.stephead',sec).append(b);
+  });
+  document.body.addEventListener('click',e=>{
+    const r=e.target.closest('[data-reset]');
+    if(r)askConfirm(r,'¿Borrar las respuestas de esta fase? No se puede deshacer.',()=>resetPhase(+r.dataset.reset));
+    const a=e.target.closest('#resetall');
+    if(a)askConfirm(a,'¿Borrar TODO el caso, incluidas las claves? No se puede deshacer.',resetAll);
+  });
+}
 function applyPhases(){
   [1,2,3,4,5].forEach(n=>{
     const sec=document.getElementById('s'+n),open=!!S.unlocked[n];
@@ -1066,13 +1108,13 @@ function applyPhases(){
 
 /* ---------- boot ---------- */
 function boot(){
-  initPhases();initPre();initQ1();initQ2();initGsim();initQ3();initQ4();initQ5();initQ6();initQ7();initQ8();initQ9();initQ10();initDebate();
+  initPhases();initReset();initPre();initQ1();initQ2();initGsim();initQ3();initQ4();initQ5();initQ6();initQ7();initQ8();initQ9();initQ10();initDebate();
   chipAssign({id:'fpd',bankEl:'#fpdbank',gridEl:'#fpdgrid',chips:FPDCHIPS,blocks:FPDBLOCKS,verifyBtn:'#fpdverify',scoreEl:'#fpdscore',noteEl:'#fpdnote'});
   chipAssign({id:'proj',free:true,bankEl:'#projbank',gridEl:'#projgrid',chips:PROJCHIPS,blocks:PROJBLOCKS,scoreEl:'#projscore'});
   chipAssign({id:'org',bankEl:'#orgbank',gridEl:'#orggrid',chips:ORGB,blocks:ORGCOLS.map(c=>[c[0],c[1],'']),verifyBtn:'#orgverify',scoreEl:'#orgscore'});
   bindFields();
   // restore selects/inputs bound by data-k that are not textareas
-  drawRadar();window._q5();window._gsim();$$('#rk5_tec,#rk5_gob,#rk5_cul').forEach(x=>x.addEventListener('change',rkRender));rkRender();$('#e2v').textContent=$('#e2').value+'%';
+  drawRadar();window._q5();window._gsim();$$('#rk5_tec,#rk5_gob,#rk5_cul,#rk1_tec,#rk1_gob,#rk1_cul').forEach(x=>x.addEventListener('change',rkRender));rkRender();$('#e2v').textContent=$('#e2').value+'%';
   applyLock();initNav();initPdf();progress();
 }
 boot();
