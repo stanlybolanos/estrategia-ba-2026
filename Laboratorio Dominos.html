@@ -1,0 +1,856 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Laboratorio Domino’s</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+:root{
+  --bg:#edf0f3; --panel:#ffffff; --ticket:#fbfbf8; --ink:#14202b; --mute:#566474; --line:#d3dae1;
+  --accent:#c9301a; --accent-ink:#ffffff; --accent-soft:#fbe6e1;
+  --steel:#24598a; --steel-soft:#e1ecf6; --ok:#25703f; --ok-soft:#dff0e5; --warn:#8f5a0c; --warn-soft:#f8edd3;
+  --shadow:0 1px 0 #0000000d, 0 8px 24px -16px #14202b55;
+  --f-disp:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f161d; --panel:#17212b; --ticket:#1b2733; --ink:#e7edf3; --mute:#97a5b4; --line:#2b3a48;
+  --accent:#ff7a5f; --accent-ink:#1c0a05; --accent-soft:#3a1d18;
+  --steel:#82b6e6; --steel-soft:#1c3144; --ok:#72c795; --ok-soft:#173326; --warn:#e9b965; --warn-soft:#37290f;
+  --shadow:0 1px 0 #00000040, 0 8px 24px -16px #000; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --panel:#17212b; --ticket:#1b2733; --ink:#e7edf3; --mute:#97a5b4; --line:#2b3a48;
+  --accent:#ff7a5f; --accent-ink:#1c0a05; --accent-soft:#3a1d18;
+  --steel:#82b6e6; --steel-soft:#1c3144; --ok:#72c795; --ok-soft:#173326; --warn:#e9b965; --warn-soft:#37290f;
+  --shadow:0 1px 0 #00000040, 0 8px 24px -16px #000; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 60px}
+h1,h2,h3,h4{font-family:var(--f-disp);line-height:1.12;margin:0;text-wrap:balance}
+h1{font-size:clamp(34px,6vw,58px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(24px,3.4vw,32px);font-weight:800;letter-spacing:-.01em}
+h3{font-size:20px;font-weight:700}
+h4{font-size:16px;font-weight:700}
+p{margin:.35em 0 .7em}
+a{color:var(--steel)}
+.wrap{max-width:1080px;margin:0 auto}
+.mono{font-family:var(--f-mono)}
+.eyebrow{font:600 12px/1.2 var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--mute)}
+.muted{color:var(--mute);font-size:15px}
+.tiny{font-size:13px;color:var(--mute)}
+button,input,select,textarea{font:inherit;color:var(--ink)}
+:focus-visible{outline:3px solid var(--steel);outline-offset:2px;border-radius:6px}
+
+#bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--ink);color:var(--bg);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--ink)}
+#bar .in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:6px;padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));overflow-x:auto;scrollbar-width:none}
+#bar a{flex:none;color:var(--bg);text-decoration:none;font:600 13px var(--f-mono);padding:6px 11px;border-radius:99px;opacity:.78;white-space:nowrap}
+#bar a:hover,#bar a.on{opacity:1;background:#ffffff26}
+#bar .sp{flex:1}
+#bar button{flex:none;background:transparent;border:1px solid #ffffff55;color:var(--bg);border-radius:99px;padding:4px 11px;font:600 12px var(--f-mono);cursor:pointer}
+
+.hero{padding:34px 0 22px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;align-items:end}
+.hero p.lead{font-size:19px;max-width:34em;color:var(--mute)}
+.stats{display:grid;gap:10px}
+.stat{background:var(--ticket);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+.stat b{font:800 30px var(--f-disp);letter-spacing:-.02em;min-width:4.2ch}
+.stat span{flex:1;min-width:150px;font-size:15px;line-height:1.35}
+.src{font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--mute);white-space:nowrap;display:inline-block;font-style:normal}
+.src.caso{color:var(--steel);border-color:var(--steel)}
+.src.clase{color:var(--warn);border-color:var(--warn)}
+.src.ext{color:var(--accent);border-color:var(--accent)}
+
+.how{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none;counter-reset:h}
+.how li{counter-increment:h;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14.5px;line-height:1.35}
+.how li::before{content:counter(h);display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg);font:700 13px var(--f-mono);margin-bottom:6px}
+.how b{display:block;font:700 15px var(--f-disp)}
+
+.station{background:var(--ticket);border:1px solid var(--line);border-radius:16px;margin:26px 0;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.station>header{padding:20px 24px 14px;border-bottom:2px dashed var(--line);display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.station>header .eyebrow{margin-bottom:6px}
+.station .body{padding:20px 24px 26px;display:grid;gap:22px}
+.chip{font:600 12px var(--f-mono);border:1px solid var(--line);border-radius:99px;padding:3px 10px;color:var(--mute);background:var(--panel)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.callout{border-radius:10px;padding:11px 14px;font-size:15.5px;line-height:1.45;background:var(--steel-soft);border:1px solid color-mix(in srgb,var(--steel) 35%,transparent)}
+.callout.warn{background:var(--warn-soft);border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
+.callout.ok{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 40%,transparent)}
+.callout.bad{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 40%,transparent)}
+.callout ul,.callout ol{margin:.3em 0;padding-left:1.2em}
+.callout li{margin:.2em 0}
+
+label.f{display:block;font:600 12px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--mute);margin-bottom:4px}
+input[type=text],textarea,select{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:8px 10px;min-height:40px}
+textarea{resize:vertical;line-height:1.45;min-height:64px;max-height:220px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--mute) transparent}
+textarea::-webkit-scrollbar{width:9px}
+textarea::-webkit-scrollbar-thumb{background:var(--mute);border-radius:9px;border:2px solid var(--panel)}
+textarea::-webkit-scrollbar-track{background:transparent}
+input[type=number]{width:96px;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:7px 9px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:9px;padding:8px 14px;font-weight:700;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.sm{padding:4px 10px;font-size:14px}
+.btn.acc{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:hover{filter:brightness(1.12)}
+
+.arch{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.arch button{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;display:grid;gap:3px;align-content:start}
+.arch button b{font:700 15px var(--f-disp)}
+.arch button span{font-size:13.5px;color:var(--mute);line-height:1.3}
+.arch button[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+
+.chain{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;counter-reset:a}
+.chain .act{background:var(--panel);border:1px solid var(--line);padding:8px 8px 10px;border-radius:8px}
+.chain .act::before{counter-increment:a;content:counter(a);font:600 12px var(--f-mono);color:var(--mute);display:block;margin-bottom:3px}
+.chain .act input{font-weight:600;font-size:15px;padding:6px 8px;min-height:36px}
+.arrowrow{display:flex;gap:6px;align-items:center;color:var(--mute);font:600 12px var(--f-mono)}
+
+.dx{display:grid;gap:10px}
+.dxrow{display:grid;grid-template-columns:minmax(0,1.1fr) repeat(3,minmax(0,1fr)) minmax(0,.9fr);gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.dxrow.crit{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.dxrow .nm{font-weight:700;line-height:1.25}
+.dxrow label{font:600 11px var(--f-mono);color:var(--mute);letter-spacing:.04em;display:flex;justify-content:space-between}
+.dxrow output{font:600 12px var(--f-mono);color:var(--ink)}
+.dxhead{display:grid;grid-template-columns:minmax(0,1.1fr) repeat(3,minmax(0,1fr)) minmax(0,.9fr);gap:12px;padding:0 12px}
+.score{font:800 22px var(--f-disp);text-align:right}
+.score small{display:block;font:500 11px var(--f-mono);color:var(--mute)}
+.bar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--steel)}
+.crit .bar i{background:var(--accent)}
+
+table{border-collapse:collapse;width:100%}
+th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle;font-size:15px}
+th{font:600 11.5px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--mute)}
+td input[type=text],td select{min-height:34px;padding:5px 8px}
+.scroll{overflow-x:auto}
+.scroll table{min-width:700px}
+.verdict{display:grid;gap:8px;margin-bottom:10px}
+.ghostnote{display:block;font-size:14px;color:var(--ink);margin-top:3px;padding-left:10px;border-left:3px solid var(--steel)}
+
+.bet{border-top:6px solid var(--bc,var(--steel));border-radius:12px}
+.bet .head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.bet h3{color:var(--bc)}
+.bet ul{margin:.3em 0;padding-left:1.15em}
+.bet li{margin:.25em 0}
+.lv{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.lv button{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;display:grid;gap:4px;align-content:start}
+.lv button .lab{font:600 11px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--mute)}
+.lv button b{font:700 15px var(--f-disp);line-height:1.2}
+.lv button span{font-size:13.5px;line-height:1.35;color:var(--mute)}
+.lv button[aria-pressed=true]{border-color:var(--bc);box-shadow:inset 0 0 0 2px var(--bc)}
+.vid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.vid a{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;align-items:center;text-decoration:none;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.vid a:hover{border-color:var(--bc)}
+.vid .play{width:44px;height:44px;border-radius:50%;background:var(--bc);display:grid;place-items:center}
+.vid .play svg{width:18px;height:18px;fill:var(--accent-ink);margin-left:3px}
+.vid b{display:block;font-size:15px;line-height:1.25}
+.vid small{color:var(--mute);font-size:13px;line-height:1.3;display:block}
+.mine{display:grid;gap:10px;margin-top:10px}
+.mine .row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+
+.matrixwrap{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px;align-items:start}
+svg text{font-family:var(--f-mono)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:14px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.ini{padding:9px 0;border-top:1px solid var(--line);font-size:15px}
+.ini:first-child{border-top:0}
+.ini .m{font:500 12.5px var(--f-mono);color:var(--mute);display:block;margin:2px 0}
+.tag{font:700 11.5px var(--f-mono);letter-spacing:.04em;text-transform:uppercase;border-radius:5px;padding:1px 7px;display:inline-block}
+.tag.v{background:var(--ok-soft);color:var(--ok)}.tag.g{background:var(--steel-soft);color:var(--steel)}.tag.m{background:var(--warn-soft);color:var(--warn)}.tag.d{background:var(--accent-soft);color:var(--accent)}
+
+.planrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.nums{display:flex;gap:12px;flex-wrap:wrap}
+.nums>div{min-width:0}
+
+
+@media (max-width:900px){
+  .hero,.matrixwrap,.grid2,.planrow,.mine .row2{grid-template-columns:minmax(0,1fr)}
+  .how{grid-template-columns:minmax(0,1fr)}
+  .chain{grid-template-columns:minmax(0,1fr)}
+  .dxhead{display:none}
+  .dxrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .dxrow .nm,.dxrow .scorebox{grid-column:1/-1}
+  .lv{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .vid{grid-template-columns:minmax(0,1fr)}
+  .station>header,.station .body{padding-left:16px;padding-right:16px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+
+<div id="bar"><div class="in">
+  <a href="#e1">1 · Cliente</a><a href="#e2">2 · Cadena</a><a href="#e3">3 · Diagnóstico</a><a href="#e4">4 · Prioriza</a><a href="#e5">5 · Habilita y prueba</a>
+  <span class="sp"></span>
+  <button id="btnTheme" type="button" aria-label="Cambiar tema claro u oscuro">Tema</button>
+</div></div>
+
+<div class="wrap">
+<header class="hero">
+  <div>
+    <div class="eyebrow">Estrategia Digital · Caso Domino’s · Maestría en Dirección Industrial</div>
+    <h1 style="margin:10px 0 12px">Laboratorio Domino’s</h1>
+    <p class="lead">Domino’s pasó de una pizza que “sabe a cartón” a ser líder mundial. Aquí aplican el mismo método de la clase a un negocio, aunque hoy lo lleven en una libreta y en WhatsApp.</p>
+  </div>
+  <div class="stats" aria-label="Domino’s en tres cifras">
+    <div class="stat"><b>$2,83</b><span>precio de la acción a finales de 2008, desde $13,50 en su salida a bolsa (2004)</span><em class="src caso">Caso</em></div>
+    <div class="stat"><b>+14%</b><span>crecimiento récord de ventas en el primer trimestre de 2010, tras rehacer la receta</span><em class="src caso">Caso</em></div>
+    <div class="stat"><b>60%</b><span>de los pedidos eran digitales en 2018</span><em class="src caso">Caso</em></div>
+  </div>
+</header>
+
+<div class="card" style="margin-bottom:6px">
+  <h3 style="margin-bottom:8px">Cómo funciona esta página</h3>
+  <ol class="how">
+    <li><b>Cliente y propósito</b>Quién es tu cliente y qué le duele.</li>
+    <li><b>Cadena de valor</b>Los cinco pasos que repites en todos tus trabajos.</li>
+    <li><b>Diagnóstico</b>Punteas cada paso y ves cuál es tu punto crítico.</li>
+    <li><b>Prioriza</b>Eliges mejoras inspiradas en Domino’s y las ubicas en la matriz.</li>
+    <li><b>Habilita y prueba</b>Armas un plan de 30 días para la primera mejora.</li>
+  </ol>
+  <p class="muted" style="margin:10px 0 0"><b>Parte 1 · Individual (esta página).</b> Cada persona la llena con su propio negocio o área, porque cada contexto es distinto. Se abre con un ejemplo ya llenado para ver cómo se usa; cuando lo entiendas, pulsa <b>“Empezar con mi negocio”</b>. Aquí nadie predice ventas: lo que sale lo decides tú con tus puntajes y se explica paso a paso. Al final descargas tu trabajo. <b>Parte 2 · En grupo:</b> comparan sus trabajos individuales con la guía de Word del caso.</p>
+</div>
+
+<!-- 1 -->
+<section class="station" id="e1">
+  <header>
+    <div><div class="eyebrow">Paso 1 del método</div><h2>Cliente y propósito</h2></div>
+    <div class="chips"><span class="chip">Golden Circle</span></div>
+  </header>
+  <div class="body">
+    <div id="exBanner"></div>
+    <div>
+      <label class="f">Elige el tipo de negocio que más se parece al tuyo</label>
+      <div class="arch" id="arch"></div>
+      <p class="tiny" style="margin-top:8px">Cambiar de tipo reemplaza lo que escribiste. Los datos de los ejemplos son ilustrativos.</p>
+    </div>
+    <div class="callout"><b>Qué hago aquí.</b> Responde en una frase cada cuadro. Si no puedes decir quién es tu cliente y qué le duele, el resto de pasos no tiene base.</div>
+    <div class="grid2">
+      <div><label class="f" for="b_client">Mi cliente principal</label><textarea id="b_client" data-b="client" rows="2"></textarea></div>
+      <div><label class="f" for="b_pain">Lo que más le duele hoy</label><textarea id="b_pain" data-b="pain" rows="2"></textarea></div>
+      <div><label class="f" for="b_why">Por qué existo (propósito)</label><textarea id="b_why" data-b="why" rows="2"></textarea></div>
+      <div><label class="f" for="b_how">Cómo lo hago diferente</label><textarea id="b_how" data-b="how" rows="2"></textarea></div>
+      <div style="grid-column:1/-1"><label class="f" for="b_what">Qué vendo</label><textarea id="b_what" data-b="what" rows="2"></textarea></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="station" id="e2">
+  <header>
+    <div><div class="eyebrow">Paso 2 del método</div><h2>Mapea la cadena de valor</h2></div>
+    <div class="chips"><span class="chip">cadena de Porter</span></div>
+  </header>
+  <div class="body">
+    <div class="callout"><b>Qué hago aquí.</b> Cada proyecto o pedido es distinto, pero los <b>pasos</b> que sigues son casi los mismos. Escribe los cinco pasos que se repiten en tu negocio, en orden. En el paso 3 se evalúan los pasos, no cada proyecto.</div>
+    <div class="chain" id="chain"></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="station" id="e3">
+  <header>
+    <div><div class="eyebrow">Paso 3 del método</div><h2>Diagnóstico: ¿dónde se pierde el valor?</h2></div>
+    <div class="chips"><span class="chip">dolor</span><span class="chip">costo</span><span class="chip">datos</span></div>
+  </header>
+  <div class="body">
+    <div class="callout"><b>Cómo se puntúa.</b> En las tres escalas, <b>5 es lo más grave</b> y 1 lo menos grave.
+      <ul>
+        <li><b>Dolor del cliente:</b> 1 = casi no lo nota, 5 = por eso se queja o no vuelve.</li>
+        <li><b>Costo o ineficiencia:</b> 1 = casi no me cuesta, 5 = me cuesta mucho tiempo o dinero.</li>
+        <li><b>Falta de datos:</b> 1 = todo queda registrado, 5 = no anoto nada. No cambia la prioridad. Solo decide qué tan avanzada puede ser la tecnología (paso 4).</li>
+      </ul>
+      <b>Impacto de resolver ese paso = dolor × costo ÷ 5</b> (queda entre 1 y 5). Ejemplo: dolor 4 y costo 5 dan 4 × 5 ÷ 5 = 4,0. El paso con mayor impacto es tu <b>punto crítico</b>.</div>
+    <div>
+      <div class="dxhead tiny mono"><span>Paso de mi cadena</span><span>Dolor del cliente</span><span>Costo o ineficiencia</span><span>Falta de datos</span><span style="text-align:right">Impacto</span></div>
+      <div class="dx" id="dx"></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
+        <div style="min-width:0;flex:1 1 360px">
+          <h3>¿De dónde saco los datos? De mis últimos trabajos</h3>
+          <p class="muted">No hace falta una base de datos. Anota en una tabla los últimos diez trabajos: qué los atrasó y cuántos días se perdieron. Con eso se ve qué causa pesa más. Las filas del ejemplo son inventadas: cámbialas por las tuyas.</p>
+        </div>
+        <button class="btn ghost sm" id="addRow" type="button">Agregar fila</button>
+      </div>
+      <div class="scroll"><table id="bit"><thead><tr><th>Trabajo o pedido</th><th>Qué lo atrasó</th><th>En qué paso</th><th style="width:110px">Días perdidos</th><th style="width:70px"></th></tr></thead><tbody></tbody></table></div>
+      <div class="matrixwrap" style="margin-top:14px;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+        <div id="pareto"></div>
+        <div id="critBox"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="station" id="e4">
+  <header>
+    <div><div class="eyebrow">Paso 4 del método</div><h2>Prioriza: impacto vs. esfuerzo</h2></div>
+    <div class="chips"><span class="chip">apuestas de Domino’s</span><span class="chip">victorias fáciles</span></div>
+  </header>
+  <div class="body">
+    <div class="callout warn"><b>La idea central.</b> Domino’s tenía tres dolores y respondió a cada uno de forma distinta: hizo visible el proceso (transparencia), mejoró el producto (hasta la receta, que no fue tecnología) y abrió canales propios. Ninguna idea salió de una lista: salió de un dolor concreto. Las tres apuestas son <b>ejemplos de cómo pensar</b>, no un menú obligatorio. Para cada una, <b>elige qué haría tu negocio</b> según cuánto cambio exige:
+  <ul><li><b>Nivel 0:</b> sin herramientas nuevas (papel, WhatsApp, una reunión).</li><li><b>Nivel 1:</b> con lo que ya tienes (hoja de cálculo, formularios, tu herramienta de reportes actual).</li><li><b>Nivel 2:</b> algo nuevo que comprar o construir (software, plataforma, IA).</li></ul>
+  Los ejemplos de cada nivel son solo una guía. <b>Si no aplican a tu negocio, reescríbelos</b> en el cuadro “Así lo haría yo”, o elige “Otra idea”, que es una respuesta tan válida como las demás: lo importante es que ataque el punto crítico que encontraste en los pasos anteriores. Si una apuesta no te sirve, di que no aplica y explica por qué.</div>
+    <div id="bets" style="display:grid;gap:18px"></div>
+    <div class="card">
+      <h3 style="margin-bottom:8px">La matriz de impacto vs. esfuerzo</h3>
+      <div class="callout" style="margin-bottom:12px"><b>Cómo se lee, en tres pasos.</b>
+        <ol>
+          <li><b>Impacto (hacia arriba):</b> sale del paso que ataca la mejora. Es el dolor × costo ÷ 5 que pusieron en el paso 3.</li>
+          <li><b>Esfuerzo (hacia la derecha):</b> sale del nivel que elegiste. Nivel 0 = 1, nivel 1 = 3, nivel 2 = 5. En “otra idea” lo pones tú de 1 a 5.</li>
+          <li><b>Victoria fácil</b> = impacto 3 o más y esfuerzo 3 o menos. Es la mejora que empiezas primero.</li>
+        </ol>
+        <b>Ejemplo.</b> Si “Abastecer” tiene dolor 4 y costo 5, el impacto es 4,0. Un proveedor de respaldo con un acuerdo por WhatsApp es nivel 0, esfuerzo 1. Impacto alto con esfuerzo bajo es una victoria fácil.
+        <br><b>¿Cómo logro una victoria fácil?</b> 1) Ataca tu punto crítico. 2) Elige la versión más simple que ya reduzca el dolor. 3) Si te sale esfuerzo alto, pregúntate qué parte puedes hacer esta semana con lo que tienes.</div>
+      <div class="matrixwrap">
+        <div id="matrix"></div>
+        <div id="matrixList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="station" id="e5">
+  <header>
+    <div><div class="eyebrow">Paso 5 del método</div><h2>Habilita y prueba</h2></div>
+    <div class="chips"><span class="chip">tecnología al final</span><span class="chip">prueba de 30 días</span></div>
+  </header>
+  <div class="body">
+    <div class="callout"><b>Qué hago aquí.</b> Una mejora no sirve si no se prueba. Elige la primera iniciativa y define qué harás esta semana, quién la hace y cómo sabrás en 30 días si funcionó. Los campos vienen sugeridos y se pueden editar.</div>
+    <div id="plan"></div>
+    <div class="card" id="exportBox" style="display:grid;gap:12px">
+      <div><h3>Mi entrega individual</h3><p class="muted" style="margin:4px 0 0">Descarga tu trabajo completo (pasos 1 a 5) en PDF, listo para entregarlo o llevarlo a la sesión de grupo. También puedes bajarlo como página web, o copiar todo el texto.</p></div>
+      <div style="max-width:420px"><label class="f" for="who">Mi nombre</label><input type="text" id="who" data-who="1" placeholder="Nombre y apellido"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button class="btn acc" id="pdfBtn" type="button">Descargar PDF</button><button class="btn ghost" id="dlBtn" type="button">Descargar como página web</button><button class="btn ghost" id="copyAll" type="button">Copiar todo mi trabajo</button><span id="dlMsg" class="muted" role="status"></span></div>
+    </div>
+  </div>
+</section>
+
+<p class="tiny" style="margin-top:26px">Fuentes: caso HBS 421-S03 “Tecnología con aspecto de pizza: ¿cómo Domino’s llegó a la cima?” (<span class="src caso">Caso</span>), la presentación de la clase (<span class="src clase">Clase</span>) y cifras de otras fuentes (<span class="src ext">Externa</span>). Los datos de los negocios de ejemplo son inventados para ilustrar el método.</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const f1=x=>x.toFixed(1).replace('.',',');
+const KEY='lab_dominos_v3';
+const BK=['t','p','c'];
+const EFF=[1,3,5];
+
+const BETS={
+ t:{n:'Transparencia en la entrega',col:'var(--steel)',ini:'T',pain:'“¿Se olvidaron de mi pizza?”',
+  ev:[['caso','Pizza Tracker muestra al cliente en qué etapa va su pedido; la empresa dice que acierta con un margen de 40 segundos.'],
+      ['caso','El proceso de preparar y tomar el pedido se diseñó para completarse en 12 a 15 minutos.'],
+      ['caso','Idea central: cambiar la incertidumbre (“¿se olvidaron de mi pizza?”) por información y entretenimiento, y a la vez por responsabilidad y transparencia.'],
+      ['clase','Más de 20.000 clientes siguieron sus pizzas durante un Super Bowl.'],
+      ['ext','Se atribuye al Pizza Tracker un aumento de 23% en las ganancias de pedidos en línea (cifra externa al caso).']],
+  vid:[['Pizza Tracker, explicado','https://www.youtube.com/watch?v=bnf15mjtD5k','Fíjate en las etapas que ve el cliente.']]},
+ p:{n:'Experiencia del cliente por la mejora del producto',col:'var(--accent)',ini:'P',pain:'“La pizza sabe a cartón”',
+  ev:[['caso','Una encuesta puso a Domino’s primero en precio pero empatado en último lugar en sabor.'],
+      ['caso','Rehicieron la receta desde cero por primera vez desde su fundación y lo contaron con honestidad: los anuncios mostraban a clientes criticando la pizza vieja.'],
+      ['caso','Primer trimestre de 2010: crecimiento récord de 14%. Todo 2010: ventas +9,9%.'],
+      ['clase','La diapositiva del primer trimestre de 2010 indica +14,3% en ventas de las mismas tiendas.']],
+  vid:[]},
+ c:{n:'Nuevos canales y modelos digitales',col:'var(--ok)',ini:'C',pain:'Pedir por el canal que ya uso',
+  ev:[['caso','En 2010 lanzó su propio sistema de pedidos en línea, con la meta de pasar de 20% a 50% de ventas digitales para 2016.'],
+      ['caso','En 2014 lanzó “Dom”, un asistente de pedidos por voz: medio millón de pedidos antes de terminar el año.'],
+      ['caso','En 2018, 60% de los pedidos eran digitales. Decidió no depender de plataformas de terceros para conservar los datos de sus clientes (23 millones de miembros de lealtad).'],
+      ['clase','Una diapositiva más reciente indica más de 85% de ventas por canales digitales (cifra más reciente que el caso).']],
+  vid:[['Pedir desde cualquier lugar','https://www.youtube.com/watch?v=DNFxfd3UhgA','¿Qué parte es tecnología y cuál es modelo de negocio?']]}
+};
+const LVN=['Nivel 0 · Papel y WhatsApp','Nivel 1 · Hoja de cálculo','Nivel 2 · Software, datos e IA'];
+
+const ARCH={
+ proy:{k:'proy',name:'Proyectos de ingeniería',tag:'Negocio que trabaja por proyecto',
+  biz:{client:'Empresas y entidades que contratan proyectos de ingeniería',pain:'No saben en qué va el proyecto ni por qué se atrasa',why:'Que los proyectos salgan bien y sin sorpresas',how:'Planeando y comunicando el avance con el cliente',what:'Proyectos de ingeniería por contrato'},
+  acts:['Cotizar y ganar el proyecto','Planificar y diseñar','Abastecer materiales y proveedores','Ejecutar','Entregar, cobrar y dar garantía'],
+  sl:[[3,3,3],[3,3,3],[4,5,4],[3,3,4],[3,4,3]],
+  causes:[['Material o proveedor tardó',2],['Cambio de alcance o diseño',1],['Clima u otros factores externos',3],['Falta de personal',3],['Cobro atrasado',4],['Retrabajo por error',3]],
+  rows:[['Proyecto A',0,9],['Proyecto B',1,6],['Proyecto C',0,12],['Proyecto D',2,8],['Proyecto E',0,7],['Proyecto F',3,4],['Proyecto G',5,3],['Proyecto H',4,5]],
+  tg:{t:3,p:2,c:2},
+  ex:{t:[0,'Casi no cuesta nada y el cliente deja de preguntar a cada rato cómo va.'],p:[2,'Quiero un modelo que estime solo los insumos de cada proyecto.'],c:[0,'El abastecimiento es mi punto crítico y un proveedor de respaldo se arregla esta semana.']},
+  bets:{t:[['Avance semanal por WhatsApp','Foto y tres líneas al cliente cada viernes: qué se hizo, qué falta y qué puede atrasar.'],['Tablero de avance en hoja compartida','Porcentaje por etapa con semáforo; el cliente ve el enlace.'],['App de seguimiento con alertas','Software con fotos, avance y alertas automáticas.']],
+        p:[['Paquetes tipo con alcance fijo','Tres versiones estándar de tu servicio con plantillas reutilizables.'],['Hoja de insumos y tiempos por tipo','Con tus últimos proyectos calculas materiales y días por tipo.'],['Modelo que estima insumos y fechas','Software que pronostica con histórico y datos externos.']],
+        c:[['Proveedor de respaldo con precio pactado','Un segundo proveedor listo si el primero falla.'],['Pedidos programados con la hoja de insumos','Compras planeadas una semana antes y a varios proveedores.'],['Portal de compras con inventario de proveedores','Software que compara existencias y precios.']]}},
+ abast:{k:'abast',name:'Abastecimiento para ingenieros industriales',tag:'Venta de repuestos e insumos a plantas',
+  biz:{client:'Ingenieros de mantenimiento y de planta que necesitan repuestos e insumos',pain:'Una pieza que llega tarde detiene su línea de producción',why:'Que la planta no se detenga por falta de una pieza',how:'Con existencias confiables y tiempos de entrega claros',what:'Repuestos, insumos y suministro industrial'},
+  acts:['Recibir y cotizar el pedido','Confirmar existencia y tiempo','Preparar y despachar','Entregar al cliente','Cobrar y dar seguimiento'],
+  sl:[[3,3,2],[4,5,4],[3,4,3],[3,3,3],[3,4,4]],
+  causes:[['Faltante de repuesto',1],['Proveedor atrasado',1],['Error en el pedido',2],['Retraso en la entrega',3],['Cobro atrasado',4]],
+  rows:[['Pedido A',0,3],['Pedido B',1,5],['Pedido C',1,4],['Pedido D',2,2],['Pedido E',0,6],['Pedido F',3,4],['Pedido G',1,5],['Pedido H',4,3]],
+  tg:{t:3,p:1,c:0},
+  ex:{t:[1,'Es ordenado y no cuesta casi nada, aunque no ataca mi mayor dolor.'],p:[0,'Mi dolor es no saber si tengo el repuesto: una lista corta con tiempos lo resuelve ya.'],c:[2,'Un portal propio suena moderno y quiero probarlo.']},
+  bets:{t:[['Aviso por WhatsApp: confirmado, despachado, entregado','Tres mensajes por pedido con hora estimada.'],['Hoja de pedidos con estado y hora','Hoja compartida con semáforo por pedido.'],['Rastreo de pedidos en línea','Software con etapas y alertas al cliente.']],
+        p:[['Lista de los 20 repuestos más pedidos con precio y tiempo','Un catálogo corto y claro.'],['Hoja de existencias mínimas por repuesto','Mínimo y tiempo de reposición con tus ventas pasadas.'],['Reposición sugerida automáticamente','Software con histórico de consumo.']],
+        c:[['Catálogo y pedidos por WhatsApp Business','Un número y un catálogo.'],['Formulario de pedidos que llena una hoja','Pedidos propios sin llamadas.'],['Portal de pedidos con inventario en línea','Software conectado a bodega.']]}},
+ resto:{k:'resto',name:'Restaurante o pizzería local',tag:'El caso de Domino’s a pequeña escala',
+  biz:{client:'Familias y oficinas cercanas',pain:'No saben si su pedido ya salió',why:'Que la gente coma bien y a tiempo',how:'Comida caliente y entrega en el tiempo prometido',what:'Comida preparada para llevar y a domicilio'},
+  acts:['Recibir el pedido','Preparar','Entregar o servir','Cobrar','Fidelizar y atender quejas'],
+  sl:[[3,3,3],[3,4,3],[4,4,4],[2,2,2],[3,2,4]],
+  causes:[['Pedido mal tomado',0],['Cocina saturada',1],['Repartidor tarde',2],['Queja sin respuesta',4],['Faltante de insumos',1]],
+  rows:[['Viernes noche',1,14],['Pedido empresa',0,6],['Sábado almuerzo',2,9],['Pedido grande',4,5],['Domingo',3,2],['Viernes noche',1,12],['Feriado',4,8]],
+  tg:{t:2,p:1,c:0},
+  ex:{t:[0,'Un mensaje de “en camino” cuesta nada y quita la duda del cliente.'],p:[1,'Probar una receta nueva con encuesta en QR.'],c:[2,'Una app propia, como Domino’s.']},
+  bets:{t:[['Avisar por WhatsApp: en cocina y en camino','Dos mensajes por pedido.'],['Tablero de pedidos con hora de cada etapa','Hoja compartida con tiempos.'],['Rastreador en línea tipo Pizza Tracker','Software con etapas y tiempo estimado.']],
+        p:[['Preguntar a 20 clientes qué cambiarían y ajustar un plato','Conversación directa, sin costo.'],['Encuesta por código QR y prueba de una receta nueva','Formulario y comparación de ventas.'],['Análisis de ventas por plato','Software que mide qué platos regresan.']],
+        c:[['Pedidos por WhatsApp Business con catálogo','Un número y un catálogo.'],['Formulario o página simple de pedidos propia','Los pedidos llegan a una hoja.'],['App propia y pedidos por voz o chat','Software conectado a cocina.']]}},
+ serv:{k:'serv',name:'Servicios profesionales',tag:'Consultoría, diseño o freelance',
+  biz:{client:'Pequeñas empresas que contratan por proyecto',pain:'No saben en qué va su proyecto ni qué falta de su parte',why:'Que el cliente tome mejores decisiones',how:'Con entregables claros y fechas cumplidas',what:'Un servicio profesional por proyecto'},
+  acts:['Prospectar y cotizar','Entender el encargo','Producir el entregable','Revisar y entregar','Cobrar y renovar'],
+  sl:[[3,3,3],[4,4,3],[3,3,3],[3,2,4],[3,4,3]],
+  causes:[['Alcance mal definido',1],['Correcciones sin fin',3],['El cliente tarda en responder',1],['Cobro atrasado',4],['Sin tiempo para vender',0]],
+  rows:[['Proyecto A',0,10],['Proyecto B',1,6],['Proyecto C',2,8],['Proyecto D',0,12],['Proyecto E',3,5],['Proyecto F',2,7]],
+  tg:{t:3,p:1,c:0},
+  ex:{t:[1,'Un tablero compartido con el estado de cada entregable.'],p:[0,'Una plantilla de ocho preguntas evita el alcance mal definido, mi mayor dolor.'],c:[2,'Un embudo digital completo para conseguir clientes.']},
+  bets:{t:[['Resumen semanal de avance y pendientes','Un correo corto con lo que falta de ambos lados.'],['Tablero compartido con el estado de cada entregable','Hoja o tablero con semáforo.'],['Portal de cliente con seguimiento','Software con avances y aprobaciones.']],
+        p:[['Plantilla de ocho preguntas para definir el encargo','Alcance claro desde el inicio.'],['Paquetes cerrados con alcance y precio','Tres opciones con límites.'],['Propuestas generadas con historial e IA','Software que arma la propuesta.']],
+        c:[['WhatsApp Business y tres casos publicados','Presencia mínima que genera confianza.'],['Alianza con dos colegas que te refieran trabajo','Un acuerdo simple de referidos.'],['Embudo digital con formulario y seguimiento','Software que da seguimiento solo.']]}},
+ propio:{k:'propio',name:'Mi propio negocio',tag:'Plantilla en blanco',
+  biz:{client:'',pain:'',why:'',how:'',what:''},
+  acts:['Conseguir al cliente','Planear','Producir o ejecutar','Entregar','Cobrar y dar seguimiento'],
+  sl:[[3,3,3],[3,3,3],[3,3,3],[3,3,3],[3,3,3]],
+  causes:[['Retraso del proveedor',2],['El cliente cambia el pedido',1],['Falta de personal',2],['Error o retrabajo',2],['Cobro atrasado',4]],
+  rows:[['',0,0],['',1,0],['',2,0]],
+  tg:{t:3,p:1,c:2},
+  ex:null,
+  bets:{t:[['Avisar al cliente por WhatsApp en cada etapa','Mensajes cortos con foto.'],['Hoja compartida con el estado de cada trabajo','Semáforo por etapa.'],['Sistema con seguimiento y alertas','Software de estados.']],
+        p:[['Hablar con 10 clientes y estandarizar lo que más piden','Una versión base repetible.'],['Paquetes con alcance y precio, y una hoja de costos','Ofertas cerradas.'],['Pronósticos y recomendaciones con tus datos','Modelos sobre tu historial.']],
+        c:[['Un segundo proveedor o canal de respaldo','Reduce el riesgo de depender de uno.'],['Pedidos programados con una hoja de consumo','Compras planeadas.'],['Portal que conecta cliente y proveedor','Software de pedidos.']]}}
+};
+
+Object.values(ARCH).forEach(a=>{const n=a.causes.map(c=>c[0]);if(!n.includes('Falta de herramientas o infraestructura'))a.causes.push(['Falta de herramientas o infraestructura',2]);if(!n.includes('Otra razón'))a.causes.push(['Otra razón',2]);});
+
+/* ---------- estado ---------- */
+let S=null;
+const blankBets=k=>{const A=ARCH[k];const o={};BK.forEach(b=>o[b]={lv:null,target:A.tg[b],text:'',eff:3,why:''});return o;};
+function fresh(k){
+  const A=ARCH[k];const ex=!!A.ex;
+  const bets=blankBets(k);
+  if(ex)BK.forEach(b=>{bets[b].lv=A.ex[b][0];bets[b].why=A.ex[b][1];});
+  return {arche:k,example:ex,biz:{...A.biz},acts:[...A.acts],sl:A.sl.map(r=>[...r]),rows:A.rows.map(r=>({n:r[0],c:r[1],d:r[2],s:null,o:''})),who:'',crit:null,bets,plan:{pick:null,first:null,who:'',measure:null,base:'',goal:'',date:'',change:''}};
+}
+function toBlank(){
+  const A=ARCH[S.arche];
+  S.example=false;
+  S.biz={client:'',pain:'',why:'',how:'',what:''};
+  S.sl=A.sl.map(()=>[3,3,3]);
+  S.rows=[{n:'',c:0,d:0,s:null,o:''},{n:'',c:1,d:0,s:null,o:''},{n:'',c:2,d:0,s:null,o:''}];
+  S.crit=null;S.bets=blankBets(S.arche);
+  S.plan={pick:null,first:null,who:'',measure:null,base:'',goal:'',date:'',change:''};
+}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);if(o&&o.arche&&ARCH[o.arche]&&o.bets&&o.plan)return o;}}catch(e){}return fresh('proy');}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const A_=()=>ARCH[S.arche];
+
+/* ---------- cálculos ---------- */
+const impactOf=i=>clamp(S.sl[i][0]*S.sl[i][1]/5,1,5);
+function critAuto(){let b=-1,bi=0;S.sl.forEach((r,i)=>{const v=r[0]*r[1];if(v>b){b=v;bi=i;}});return bi;}
+const critIdx=()=>S.crit==null?critAuto():S.crit;
+const isOther=c=>A_().causes[c]&&A_().causes[c][0]==='Otra razón';
+const stepOf=r=>r.s!=null?clamp(+r.s,0,4):clamp((A_().causes[+r.c]||[0,2])[1],0,4);
+function paretoSteps(){const m=[0,0,0,0,0];S.rows.forEach(r=>{m[stepOf(r)]+=(+r.d||0);});return m;}
+function pareto(){
+  const m=new Map();S.rows.forEach(r=>{const d=+r.d||0;if(d>0)m.set(+r.c,(m.get(+r.c)||0)+d);});
+  const arr=[...m.entries()].map(([c,d])=>({c,d})).sort((a,b)=>b.d-a.d);
+  return {arr,tot:arr.reduce((a,x)=>a+x.d,0)};
+}
+function quad(imp,eff){return imp>=3?(eff<=3?'v':'g'):(eff<=3?'m':'d');}
+const QN={v:'Victoria fácil',g:'Apuesta grande',m:'Mejora menor',d:'Descartar o esperar'};
+function initiatives(){
+  const out=[];
+  BK.forEach(k=>{
+    const b=S.bets[k];if(b.lv==null)return;
+    const def=A_().bets[k],tg=b.target;
+    const impact=impactOf(tg),eff=b.lv<3?EFF[b.lv]:clamp(+b.eff||3,1,5);
+    const custom=b.text.trim().length>0;
+    const name=custom?b.text.trim():(b.lv<3?def[b.lv][0]:'Mi propuesta');
+    const desc=custom?b.text.trim():(b.lv<3?def[b.lv][1]:'');
+    const x=S.sl[tg][2];
+    out.push({k,lv:b.lv,name,desc,custom,target:tg,impact,effort:eff,q:quad(impact,eff),why:b.why.trim(),x,lowData:b.lv===2&&x>=4,dp:S.sl[tg][0],cs:S.sl[tg][1]});
+  });
+  return out;
+}
+const qOrder={v:0,g:1,m:2,d:3};
+function best(its){return [...its].sort((a,b)=>qOrder[a.q]-qOrder[b.q]||(b.impact-b.effort)-(a.impact-a.effort))[0];}
+
+/* ---------- render ---------- */
+function renderBanner(){
+  $('#exBanner').innerHTML=S.example?`<div class="callout warn" style="display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap"><span><b>Estás viendo un ejemplo ilustrativo ya llenado.</b> Recórrelo hasta el paso 5 para entender cómo se usa. Después empieza con tu negocio.</span><button class="btn acc" id="toBlank" type="button">Empezar con mi negocio</button></div>`:'';
+}
+function renderArch(){$('#arch').innerHTML=Object.values(ARCH).map(a=>`<button type="button" data-a="${a.k}" aria-pressed="${S.arche===a.k}"><b>${esc(a.name)}</b><span>${esc(a.tag)}</span></button>`).join('');}
+function renderBiz(){
+  ['client','pain','why','how','what'].forEach(k=>{$('#b_'+k).value=S.biz[k];});
+  $('#chain').innerHTML=S.acts.map((a,i)=>`<div class="act"><input type="text" data-act="${i}" value="${esc(a)}" aria-label="Paso ${i+1} de mi cadena de valor"></div>`).join('');
+}
+function renderDx(){
+  const ci=critIdx();
+  $('#dx').innerHTML=S.acts.map((a,i)=>{
+    const [d,c,x]=S.sl[i];const im=impactOf(i);
+    return `<div class="dxrow${i===ci?' crit':''}" data-i="${i}">
+      <div class="nm">${esc(a)}${i===ci?' <span class="src ext">punto crítico</span>':''}</div>
+      ${[['Dolor',0,d],['Costo',1,c],['Falta datos',2,x]].map(([l,j,v])=>`<div><label for="s${i}_${j}">${l}<output>${v}</output></label><input type="range" id="s${i}_${j}" min="1" max="5" step="1" value="${v}" data-i="${i}" data-j="${j}"></div>`).join('')}
+      <div class="scorebox"><div class="score">${f1(im)}<small>impacto</small></div><div class="bar"><i style="width:${im*20}%"></i></div></div></div>`;}).join('');
+}
+function updateDxLive(){
+  const ci=critIdx();
+  $$('.dxrow').forEach(r=>{const i=+r.dataset.i;const im=impactOf(i);
+    r.classList.toggle('crit',i===ci);
+    $('.score',r).innerHTML=`${f1(im)}<small>impacto</small>`;$('.bar i',r).style.width=(im*20)+'%';
+    $('.nm',r).innerHTML=esc(S.acts[i])+(i===ci?' <span class="src ext">punto crítico</span>':'');});
+}
+function renderBit(){
+  const ca=A_().causes;
+  const opts=ca.map((c,i)=>`<option value="${i}">${esc(c[0])}</option>`).join('');
+  const sopts=S.acts.map((a,i)=>`<option value="${i}">${esc(a)}</option>`).join('');
+  $('#bit tbody').innerHTML=S.rows.map((r,i)=>`<tr><td><input type="text" data-r="${i}" data-f="n" value="${esc(r.n)}" placeholder="Nombre del trabajo" aria-label="Trabajo ${i+1}"></td>
+    <td><select data-r="${i}" data-f="c" aria-label="Causa del trabajo ${i+1}">${opts.replace(`value="${+r.c}"`,`value="${+r.c}" selected`)}</select>${isOther(+r.c)?`<input type="text" data-r="${i}" data-f="o" value="${esc(r.o||'')}" placeholder="¿Cuál fue?" style="margin-top:4px" aria-label="Detalle de la otra razón ${i+1}">`:''}</td>
+    <td><select data-r="${i}" data-f="s" aria-label="Paso afectado del trabajo ${i+1}">${sopts.replace(`value="${stepOf(r)}"`,`value="${stepOf(r)}" selected`)}</select></td>
+    <td><input type="number" min="0" max="365" data-r="${i}" data-f="d" value="${+r.d||0}" aria-label="Días perdidos del trabajo ${i+1}"></td>
+    <td><button type="button" class="btn ghost sm" data-del="${i}" aria-label="Quitar fila ${i+1}">Quitar</button></td></tr>`).join('');
+}
+function barRows(list,tot,top){return list.map((x,i)=>{const p=Math.round(x.d/tot*100);return `<div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.7fr);gap:8px;align-items:center;margin:5px 0;font-size:15px"><span>${esc(x.l)}</span><span style="display:flex;gap:8px;align-items:center"><span class="bar" style="flex:1"><i style="width:${p}%;${i===0&&top?'background:var(--accent)':''}"></i></span><span class="mono" style="font-size:12.5px;min-width:5.6em;text-align:right">${x.d} d · ${p}%</span></span></div>`;}).join('');}
+function critWarn(){
+  const ci=critIdx(),im=impactOf(ci);
+  if(im>=3)return '';
+  return `<div class="callout bad" style="margin-top:10px"><b>Ojo:</b> marcaste “${esc(S.acts[ci])}” como punto crítico, pero sus puntajes dan impacto ${f1(im)} (dolor ${S.sl[ci][0]} × costo ${S.sl[ci][1]} ÷ 5). La matriz solo lee esos puntajes. Si de verdad es crítico, revisa si el dolor o el costo están subestimados en la tabla de arriba. Si los puntajes son correctos, quizá ese no es tu punto crítico.</div>`;
+}
+function renderPareto(){
+  const {arr,tot}=pareto();const ca=A_().causes;const auto=critAuto(),ci=critIdx();
+  const sel=(extra)=>`<label class="f" for="critSel" style="margin-top:10px">Mi punto crítico</label><select id="critSel">${S.acts.map((a,i)=>`<option value="${i}"${i===ci?' selected':''}>${esc(a)}${i===auto?' (por impacto)':''}${extra(i)}</option>`).join('')}</select>`;
+  if(!tot){$('#pareto').innerHTML='<p class="muted">Anota días perdidos para ver qué causa pesa más.</p>';$('#critBox').innerHTML=sel(()=>'')+critWarn();return;}
+  const st=paretoSteps();const stl=st.map((d,i)=>({l:S.acts[i],d,i})).filter(x=>x.d>0).sort((a,b)=>b.d-a.d);
+  $('#pareto').innerHTML=`<h4 style="margin-bottom:6px">Qué te quita más días (total ${tot})</h4>`+barRows(arr.map(x=>({l:ca[x.c][0],d:x.d})),tot,true)+`<h4 style="margin:12px 0 6px">En qué paso se pierden</h4>`+barRows(stl,tot,true);
+  const top=arr[0],topAct=stl[0].i,pct=Math.round(top.d/tot*100),pctS=Math.round(stl[0].d/tot*100);
+  let msg=`La causa número uno es <b>${esc(ca[top.c][0])}</b> (${pct}% de los días perdidos) y el paso donde más días se pierden es <b>${esc(S.acts[topAct])}</b> (${pctS}%).`,cls='callout ok';
+  if(topAct!==auto){cls='callout warn';msg+=` Pero tus puntajes de impacto señalan <b>${esc(S.acts[auto])}</b>. Cuando los días perdidos y la intuición no coinciden, hay que discutirlo y elegir cuál tomar como punto crítico.`;}
+  else msg+=' Coincide con tus puntajes de impacto.';
+  $('#critBox').innerHTML=`<div class="${cls}">${msg}</div>`+sel(i=>i===topAct?' (por días perdidos)':'')+critWarn();
+}
+function whyOK(b){return b.why.trim().length>=10;}
+function renderBets(){
+  const ci=critIdx();
+  $('#bets').innerHTML=BK.map(k=>{
+    const B=BETS[k],def=A_().bets[k],b=S.bets[k],tg=b.target;
+    const x=S.sl[tg][2];
+    const lowD=b.lv===2&&x>=4;
+    return `<div class="card bet" style="--bc:${B.col}">
+      <div class="head"><div style="min-width:0"><div class="eyebrow">Apuesta ${BK.indexOf(k)+1} de Domino’s</div><h3>${esc(B.n)}</h3><p class="muted" style="margin:2px 0">El dolor del cliente: ${esc(B.pain)}</p></div></div>
+      <div class="${B.vid.length?'grid2':''}" style="margin-top:8px"><div><h4>Lo que hizo Domino’s</h4><ul>${B.ev.map(e=>`<li><span class="src ${e[0]}">${e[0]==='caso'?'Caso':e[0]==='clase'?'Clase':'Externa'}</span> ${esc(e[1])}</li>`).join('')}</ul></div>
+        ${B.vid.length?`<div><h4>Para ver</h4><div class="vid" style="grid-template-columns:minmax(0,1fr)">${B.vid.map(v=>`<a href="${esc(v[1])}" target="_blank" rel="noopener"><span class="play" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 2l14 8-14 8z"/></svg></span><span><b>${esc(v[0])}</b><small>${esc(v[2])}</small></span></a>`).join('')}</div><p class="tiny" style="margin:6px 0 0">Se abre en otra pestaña.</p></div>`:''}</div>
+      <h4 style="margin:14px 0 6px">Mi versión: ¿qué haría mi negocio?</h4>
+      <div class="lv">
+        ${def.map((l,L)=>`<button type="button" data-bet="${k}" data-lv="${L}" aria-pressed="${b.lv===L}"><span class="lab">${LVN[L]}</span><b>${esc(l[0])}</b><span>${esc(l[1])}</span></button>`).join('')}
+        <button type="button" data-bet="${k}" data-lv="3" aria-pressed="${b.lv===3}"><span class="lab">Otra idea</span><b>Escribo mi propia propuesta</b><span>Con mis palabras y mi esfuerzo.</span></button>
+        <button type="button" data-bet="${k}" data-lv="-1" aria-pressed="${b.lv==null}"><span class="lab">No aplica</span><b>No hago esta apuesta ahora</b><span>Explica por qué.</span></button>
+      </div>
+      <div class="mine">
+        ${b.lv!=null?`<div><label class="f" for="tx_${k}">${b.lv===3?'Mi propuesta':'Así lo haría yo (reescribe la opción si no aplica a mi negocio)'}</label><textarea id="tx_${k}" data-tx="${k}" placeholder="${b.lv===3?'Describe tu idea con tus palabras.':'Opcional: si lo dejas vacío se usa la opción elegida arriba.'}">${esc(b.text)}</textarea></div>
+        <div class="row2">
+          <div><label class="f" for="tg_${k}">Esta mejora ataca el paso</label><select id="tg_${k}" data-tg="${k}">${S.acts.map((a,i)=>`<option value="${i}"${i===tg?' selected':''}>${esc(a)}${i===ci?' (mi punto crítico)':''}</option>`).join('')}</select></div>
+          ${b.lv===3?`<div><label class="f" for="ef_${k}">Esfuerzo: <output id="efo_${k}">${b.eff}</output> (1 = esta semana con lo que tengo, 5 = inversión y cambio de hábitos)</label><input type="range" id="ef_${k}" data-ef="${k}" min="1" max="5" step="1" value="${b.eff}"></div>`:'<div></div>'}
+        </div>`:''}
+        <div><label class="f" for="wy_${k}">${b.lv==null?'¿Por qué no aplica? (obligatorio)':'¿Por qué elegí esto? (obligatorio)'}</label><textarea id="wy_${k}" data-wy="${k}" placeholder="Explica en una o dos frases por qué esta opción y no otra.">${esc(b.why)}</textarea>
+        <div class="tiny" id="wyn_${k}" style="margin-top:3px;color:var(--accent);${whyOK(b)?'display:none':''}">Falta tu justificación (al menos una frase).</div></div>
+        ${lowD?`<div class="callout bad"><b>Ojo con los datos.</b> En el paso “${esc(S.acts[tg])}” marcaste que casi no anotas datos (falta de datos = ${x} de 5). Una herramienta de nivel 2 aprende de registros pasados; si no los hay, no tiene con qué trabajar. Domino’s primero capturó datos con PULSE y sus pedidos en línea. Considera empezar con el nivel 0 o 1 para empezar a anotar, y pasar al nivel 2 después.</div>`:''}
+      </div>
+    </div>`;}).join('');
+  $$('#bets textarea').forEach(autosize);
+}
+function adviceFor(i){
+  const crit=S.acts[critIdx()];
+  if(i.q==='v')return 'Es una buena candidata para empezar primero: impacto alto con poco esfuerzo.';
+  if(i.q==='g')return 'Impacto alto pero esfuerzo alto: conviene planificarla para después de una victoria fácil.';
+  if(i.q==='m')return `Esfuerzo bajo pero impacto bajo: ese paso no es tu mayor dolor.`;
+  return 'Impacto bajo y esfuerzo alto: por ahora no compensa.';
+}
+function alts(i){
+  const out=[],def=A_().bets[i.k],ci=critIdx();
+  if(i.q==='g'&&i.effort>1)out.push({kind:'simple',x:1,y:i.impact,text:`Versión más simple (nivel 0): “${def[0][0]}”. Mismo paso, esfuerzo 1: pasaría a ser ${QN[quad(i.impact,1)].toLowerCase()}.`});
+  if(i.impact<3&&ci!==i.target&&impactOf(ci)>i.impact&&qOrder[quad(impactOf(ci),i.effort)]<qOrder[i.q]){const ic=impactOf(ci);out.push({kind:'crit',x:i.effort,y:ic,text:`Apuntarla a tu punto crítico “${S.acts[ci]}” (impacto ${f1(ic)}): pasaría a ser ${QN[quad(ic,i.effort)].toLowerCase()}.`});}
+  return out;
+}
+const CPAGE={okS:'var(--ok-soft)',steelS:'var(--steel-soft)',warnS:'var(--warn-soft)',accS:'var(--accent-soft)',ok:'var(--ok)',steel:'var(--steel)',warn:'var(--warn)',acc:'var(--accent)',mute:'var(--mute)',line:'var(--line)',ink:'var(--ink)',panel:'var(--panel)',accInk:'var(--accent-ink)',col:{t:'var(--steel)',p:'var(--accent)',c:'var(--ok)'}};
+function matrixSVG(its,C){
+  const W=520,H=400,l=52,r=14,t=14,b=46,pw=W-l-r,ph=H-t-b;
+  const px=x=>l+(x-1)/4*pw,py=y=>t+(5-y)/4*ph;
+  const sx=px(3),sy=py(3);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Matriz de impacto contra esfuerzo con las iniciativas elegidas" style="max-width:640px;display:block">`;
+  s+=`<rect x="${l}" y="${t}" width="${sx-l}" height="${sy-t}" fill="${C.okS}"/><rect x="${sx}" y="${t}" width="${l+pw-sx}" height="${sy-t}" fill="${C.steelS}"/><rect x="${l}" y="${sy}" width="${sx-l}" height="${t+ph-sy}" fill="${C.warnS}"/><rect x="${sx}" y="${sy}" width="${l+pw-sx}" height="${t+ph-sy}" fill="${C.accS}"/>`;
+  s+=`<text x="${l+8}" y="${t+18}" font-size="12" font-weight="600" fill="${C.ok}">VICTORIAS FÁCILES</text><text x="${l+pw-8}" y="${t+18}" font-size="12" font-weight="600" fill="${C.steel}" text-anchor="end">APUESTAS GRANDES</text><text x="${l+8}" y="${t+ph-9}" font-size="12" font-weight="600" fill="${C.warn}">MEJORAS MENORES</text><text x="${l+pw-8}" y="${t+ph-9}" font-size="12" font-weight="600" fill="${C.acc}" text-anchor="end">DESCARTAR O ESPERAR</text>`;
+  for(let i=1;i<=5;i++)s+=`<text x="${px(i)}" y="${t+ph+16}" font-size="12" fill="${C.mute}" text-anchor="middle">${i}</text><text x="${l-10}" y="${py(i)+4}" font-size="12" fill="${C.mute}" text-anchor="end">${i}</text>`;
+  s+=`<rect x="${l}" y="${t}" width="${pw}" height="${ph}" fill="none" stroke="${C.line}"/><line x1="${sx}" y1="${t}" x2="${sx}" y2="${t+ph}" stroke="${C.mute}" stroke-dasharray="4 4"/><line x1="${l}" y1="${sy}" x2="${l+pw}" y2="${sy}" stroke="${C.mute}" stroke-dasharray="4 4"/>`;
+  s+=`<text x="${l+pw/2}" y="${H-6}" font-size="12" font-weight="600" fill="${C.ink}" text-anchor="middle">ESFUERZO →</text><text transform="translate(13 ${t+ph/2}) rotate(-90)" font-size="12" font-weight="600" fill="${C.ink}" text-anchor="middle">IMPACTO →</text>`;
+  const used={};
+  its.forEach((i,n)=>{
+    const key=Math.round(i.effort*2)+'_'+Math.round(i.impact*2);const u=used[key]=(used[key]||0)+1;
+    const cx=px(i.effort)+(u-1)*22,cy=py(i.impact)-(u-1)*9;
+    alts(i).forEach(a=>{const gx=px(a.x),gy=py(a.y);s+=`<line x1="${cx}" y1="${cy}" x2="${gx}" y2="${gy}" stroke="${C.col[i.k]}" stroke-width="2" stroke-dasharray="4 4" opacity=".7"/><circle cx="${gx}" cy="${gy}" r="14" fill="none" stroke="${C.col[i.k]}" stroke-width="2" stroke-dasharray="3 3"/><text x="${gx}" y="${gy+4}" font-size="12" font-weight="600" fill="${C.col[i.k]}" text-anchor="middle">${n+1}’</text>`;});
+    s+=`<circle cx="${cx}" cy="${cy}" r="16" fill="${C.col[i.k]}" stroke="${C.panel}" stroke-width="2"/><text x="${cx}" y="${cy+5}" font-size="14" font-weight="700" fill="${C.accInk}" text-anchor="middle">${n+1}</text>`;
+  });
+  return s+'</svg>';
+}
+function verdictHTML(its){
+  if(!its.length)return '';
+  const ci=critIdx(),crit=S.acts[ci],v=[];
+  const L=(q)=>its.map((i,n)=>({i,n:n+1})).filter(x=>x.i.q===q);
+  const nm=x=>`<b>${x.n}. ${esc(x.i.name)}</b>`;
+  const vic=L('v'),gr=L('g'),mi=L('m'),de=L('d');
+  if(vic.length)v.push(`<div class="callout ok"><b>Empieza por:</b> ${vic.map(nm).join(' y ')}. Impacto alto y poco esfuerzo.</div>`);
+  else v.push(`<div class="callout warn"><b>Todavía no tienes una victoria fácil.</b> Mira abajo los círculos punteados: muestran cómo mover tus ideas hacia la esquina de arriba a la izquierda.</div>`);
+  if(gr.length)v.push(`<div class="callout"><b>Para después, con plan:</b> ${gr.map(nm).join(', ')}. Valen la pena, pero cuestan más.</div>`);
+  if(mi.length||de.length)v.push(`<div class="callout bad"><b>Deja para después o descarta:</b> ${[...mi,...de].map(nm).join(', ')}.</div>`);
+  if(!its.some(i=>i.target===ci))v.push(`<div class="callout bad"><b>Ninguna de tus mejoras ataca tu punto crítico</b> (“${esc(crit)}”). Revisa si el punto crítico está bien elegido o si falta una idea para ese paso.</div>`);
+  const {tot}=pareto();
+  if(tot){const st=paretoSteps();const top=st.indexOf(Math.max(...st));if(top!==ci&&st[top]>0&&!its.some(i=>i.target===top))v.push(`<div class="callout warn"><b>Ojo:</b> el paso donde más días pierdes es “${esc(S.acts[top])}” y ninguna de tus mejoras lo toca.</div>`);}
+  return v.join('');
+}
+function renderMatrix(){
+  const its=initiatives();
+  $('#matrix').innerHTML=its.length?matrixSVG(its,CPAGE)+`<p class="tiny" style="margin-top:6px">Círculo lleno = tu iniciativa. Si aparece un círculo punteado con apóstrofo (por ejemplo 1’), es una sugerencia: muestra dónde quedaría esa idea si haces el cambio que se explica a la derecha. Solo aparece cuando el cambio la mejora de cuadrante.</p>`:'<p class="muted">Elige una opción en alguna apuesta para ver su lugar en la matriz.</p>';
+  $('#matrixList').innerHTML=its.length?`<div class="verdict">${verdictHTML(its)}</div>`+its.map((i,n)=>`<div class="ini"><b>${n+1}. ${esc(i.name)}</b> <span class="tag ${i.q}">${QN[i.q]}</span>
+    <span class="m">${BETS[i.k].n}</span>
+    <span class="m">Impacto ${f1(i.impact)} (dolor ${i.dp} × costo ${i.cs} ÷ 5, paso “${esc(S.acts[i.target])}”) · Esfuerzo ${i.effort}${i.lv<3?` (nivel ${i.lv})`:' (elegido)'}</span>
+    ${esc(adviceFor(i))}${i.why?'':' <span style="color:var(--accent)">Falta justificar.</span>'}${i.lowData?' <span style="color:var(--accent)">Pocos datos para nivel 2.</span>':''}
+    ${(i.target===critIdx()&&i.impact<3)?`<span class="ghostnote" style="border-color:var(--accent)"><b>Ataca tu punto crítico, pero sale con impacto bajo.</b> El paso “${esc(S.acts[i.target])}” tiene dolor ${i.dp} × costo ${i.cs} ÷ 5 = ${f1(i.impact)}. Revisa esos puntajes en el paso 3.</span>`:''}
+    ${alts(i).map(a=>`<span class="ghostnote"><b>Cómo mejorar su lugar.</b> ${esc(a.text)}</span>`).join('')}</div>`).join(''):'';
+}
+function planDefaults(it){
+  const next=it.lv<2?A_().bets[it.k][it.lv+1][0]:null;
+  return {first:(it.lv<3&&!it.custom)?A_().bets[it.k][it.lv][1].replace(/\.$/,'')+'.':it.name,
+    measure:`Días perdidos y quejas en el paso “${S.acts[it.target]}”, contados durante 4 semanas y comparados con hoy.`,next};
+}
+function renderPlan(){
+  const its=initiatives();setTimeout(()=>$$('#plan textarea').forEach(autosize),0);
+  if(!its.length){$('#plan').innerHTML='<div class="callout warn">Elige al menos una iniciativa en el paso 4 para armar su plan de prueba.</div>';return;}
+  let pick=its.find(i=>i.k===S.plan.pick)||best(its);
+  if(S.plan.pick!==pick.k)S.plan.pick=pick.k;
+  const d=planDefaults(pick),P=S.plan;
+  const ok=pick.q==='v'?'':`<div class="callout warn" style="margin-bottom:12px">Esta iniciativa es “${QN[pick.q].toLowerCase()}”. Si tienes una victoria fácil, conviene empezar por ella.</div>`;
+  $('#plan').innerHTML=`${ok}<div class="card" style="display:grid;gap:14px">
+    <div><label class="f" for="pl_pick">Iniciativa con la que empiezo</label><select id="pl_pick">${its.map(i=>`<option value="${i.k}"${i.k===pick.k?' selected':''}>${esc(i.name)} (${QN[i.q].toLowerCase()})</option>`).join('')}</select></div>
+    <div class="planrow">
+      <div><label class="f" for="pl_first">Qué hago esta semana</label><textarea id="pl_first" data-pl="first">${esc(P.first==null?d.first:P.first)}</textarea></div>
+      <div><label class="f" for="pl_measure">Cómo sabré si funcionó</label><textarea id="pl_measure" data-pl="measure">${esc(P.measure==null?d.measure:P.measure)}</textarea></div>
+      <div><label class="f" for="pl_who">Quién lo hace</label><input type="text" id="pl_who" data-pl="who" value="${esc(P.who)}" placeholder="Nombre o cargo"></div>
+      <div class="nums"><div><label class="f" for="pl_base">Cómo estoy hoy</label><input type="text" id="pl_base" data-pl="base" value="${esc(P.base)}" placeholder="Ej. 28 días perdidos" style="width:170px"></div><div><label class="f" for="pl_goal">Meta en 30 días</label><input type="text" id="pl_goal" data-pl="goal" value="${esc(P.goal)}" placeholder="Ej. 14 días" style="width:170px"></div></div>
+      <div style="grid-column:1/-1"><label class="f" for="pl_change">Quién tiene que cambiar de hábito y cómo se lo explico</label><textarea id="pl_change" data-pl="change" placeholder="Toda mejora se frena si el equipo o los proveedores no entienden por qué cambia algo. Domino’s lo aprendió con PULSE.">${esc(P.change)}</textarea></div>
+    </div>
+    <div class="callout">${d.next?`<b>Tecnología, al final.</b> Cuando lleves un mes anotando datos y la falta de datos de este paso baje a 2 o menos, evalúa el siguiente nivel: “${esc(d.next)}”.`:'<b>Ya estás en el nivel más alto.</b> Asegúrate de que el equipo la use y que los datos sean confiables.'}</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button class="btn acc" id="copyPlan" type="button">Copiar mi plan</button><span id="copyMsg" class="muted" role="status"></span></div></div>`;
+}
+function autosize(t){t.style.height='auto';t.style.height=Math.min(t.scrollHeight+2,220)+'px';}
+function renderAll(){renderBanner();renderArch();renderBiz();renderDx();renderBit();renderPareto();renderBets();renderMatrix();renderPlan();$('#who').value=S.who||'';$$('textarea').forEach(autosize);save();}
+function refreshDerived(){updateDxLive();renderPareto();renderBets();renderMatrix();renderPlan();save();}
+
+/* ---------- eventos ---------- */
+document.addEventListener('click',e=>{
+  const a=e.target.closest('[data-a]');if(a){S=fresh(a.dataset.a);renderAll();return;}
+  if(e.target.closest('#toBlank')){toBlank();renderAll();return;}
+  const lv=e.target.closest('[data-lv]');
+  if(lv){const v=+lv.dataset.lv;S.bets[lv.dataset.bet].lv=v<0?null:v;S.bets[lv.dataset.bet].text='';renderBets();renderMatrix();renderPlan();save();return;}
+  const del=e.target.closest('[data-del]');if(del){S.rows.splice(+del.dataset.del,1);renderBit();renderPareto();renderBets();renderMatrix();renderPlan();save();return;}
+  if(e.target.id==='copyPlan')copyPlan();
+});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset.b){S.biz[t.dataset.b]=t.value;}
+  else if(t.dataset.act!=null){S.acts[+t.dataset.act]=t.value;}
+  else if(t.dataset.i!=null&&t.dataset.j!=null){S.sl[+t.dataset.i][+t.dataset.j]=+t.value;t.parentElement.querySelector('output').textContent=t.value;refreshDerived();return;}
+  else if(t.dataset.r!=null){const r=S.rows[+t.dataset.r],f=t.dataset.f;r[f]=(f==='n'||f==='o')?t.value:+t.value;if(f==='d'){renderPareto();renderMatrix();}}
+  else if(t.dataset.wy){const b=S.bets[t.dataset.wy];b.why=t.value;const n=$('#wyn_'+t.dataset.wy);if(n)n.style.display=whyOK(b)?'none':'';renderMatrix();}
+  else if(t.dataset.tx){S.bets[t.dataset.tx].text=t.value;renderMatrix();}
+  else if(t.dataset.who){S.who=t.value;}
+  else if(t.dataset.ef){S.bets[t.dataset.ef].eff=+t.value;$('#efo_'+t.dataset.ef).textContent=t.value;renderMatrix();renderPlan();}
+  else if(t.dataset.pl){S.plan[t.dataset.pl]=t.value;}
+  if(t.tagName==='TEXTAREA')autosize(t);
+  save();
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.act!=null){renderDx();renderBit();refreshDerived();return;}
+  if(t.id==='critSel'){S.crit=+t.value;refreshDerived();return;}
+  if(t.dataset.r!=null&&t.dataset.f==='c'){S.rows[+t.dataset.r].s=null;renderBit();renderPareto();refreshDerived();return;}
+  if(t.dataset.r!=null&&t.dataset.f==='s'){renderPareto();refreshDerived();return;}
+  if(t.dataset.tg){S.bets[t.dataset.tg].target=+t.value;renderBets();renderMatrix();renderPlan();save();return;}
+  if(t.id==='pl_pick'){S.plan={...S.plan,pick:t.value,first:null,measure:null};renderPlan();save();return;}
+});
+$('#addRow').addEventListener('click',()=>{S.rows.push({n:'',c:0,d:0,s:null,o:''});renderBit();save();});
+function planText(){
+  const its=initiatives(),pick=its.find(i=>i.k===S.plan.pick);if(!pick)return '';
+  const d=planDefaults(pick),P=S.plan;
+  return [`PLAN DE 30 DÍAS`,``,`Mi cliente: ${S.biz.client||'—'}`,`Lo que más le duele: ${S.biz.pain||'—'}`,`Mi punto crítico: ${S.acts[critIdx()]}`,``,
+   `Iniciativa: ${pick.name} (${QN[pick.q]}; impacto ${f1(pick.impact)}, esfuerzo ${pick.effort})`,
+   `Por qué la elegí: ${pick.why||'—'}`,`Qué hago esta semana: ${P.first==null?d.first:P.first}`,`Quién: ${P.who||'—'}`,
+   `Cómo sabré si funcionó: ${P.measure==null?d.measure:P.measure}`,`Hoy: ${P.base||'—'} · Meta en 30 días: ${P.goal||'—'}`,`Quién cambia de hábito y cómo se lo explico: ${P.change||'—'}`,
+   ``,`Otras iniciativas evaluadas:`,...its.filter(i=>i!==pick).map(i=>`- ${i.name}: ${QN[i.q]}. ${i.why||''}`)].join('\n');
+}
+async function copyPlan(){
+  const txt=planText(),msg=$('#copyMsg');
+  try{await navigator.clipboard.writeText(txt);msg.textContent='Copiado.';}
+  catch(err){const ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy');}catch(_){}ta.remove();msg.textContent=ok?'Copiado.':'No se pudo copiar solo: selecciona el texto de cada cuadro y cópialo.';}
+  setTimeout(()=>{msg.textContent='';},5000);
+}
+/* ---------- exportar ---------- */
+const CLIT={okS:'#dff0e5',steelS:'#e1ecf6',warnS:'#f8edd3',accS:'#fbe6e1',ok:'#25703f',steel:'#24598a',warn:'#8f5a0c',acc:'#c9301a',mute:'#566474',line:'#d3dae1',ink:'#14202b',panel:'#ffffff',accInk:'#ffffff',col:{t:'#24598a',p:'#c9301a',c:'#25703f'}};
+function summaryHTML(){
+  const its=initiatives(),pick=its.find(i=>i.k===S.plan.pick),P=S.plan,d=pick?planDefaults(pick):null;
+  const {arr,tot}=pareto(),ca=A_().causes,ci=critIdx();
+  const fecha=new Date().toLocaleDateString('es-GT');
+  const tr=(a)=>'<tr>'+a.map(x=>`<td>${x}</td>`).join('')+'</tr>';
+  const th=(a)=>'<tr>'+a.map(x=>`<th>${x}</th>`).join('')+'</tr>';
+  const css=`body{font:15px/1.5 Georgia,serif;color:#14202b;max-width:860px;margin:24px auto;padding:0 20px}h1{font:700 26px Arial,sans-serif;margin:0 0 4px}h2{font:700 18px Arial,sans-serif;margin:26px 0 6px;border-bottom:2px solid #14202b;padding-bottom:3px}table{border-collapse:collapse;width:100%;margin:6px 0}th,td{border:1px solid #c9d1d9;padding:5px 7px;text-align:left;vertical-align:top;font-size:13.5px}th{background:#eef1f4;font-family:Arial,sans-serif}.k{font:700 11px Arial,sans-serif;text-transform:uppercase;color:#566474;letter-spacing:.05em}p{margin:.3em 0 .6em}.sm{color:#566474;font-size:13px}@media print{h2{break-after:avoid}table,svg{break-inside:avoid}}`;
+  let h=`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Laboratorio Domino’s – ${esc(S.who||'mi trabajo')}</title><style>${css}</style></head><body>`;
+  h+=`<h1>Laboratorio Domino’s · Trabajo individual</h1><p class="sm">${esc(S.who||'(sin nombre)')} · ${fecha} · Estrategia Digital · Tipo de negocio de partida: ${esc(A_().name)}${S.example?' · <b>Atención: se descargó con el ejemplo sin reemplazar por un negocio propio</b>':''}</p>`;
+  h+=`<h2>1. Cliente y propósito</h2>`+[['Mi cliente principal',S.biz.client],['Lo que más le duele',S.biz.pain],['Por qué existo',S.biz.why],['Cómo lo hago diferente',S.biz.how],['Qué vendo',S.biz.what]].map(x=>`<p><span class="k">${x[0]}</span><br>${esc(x[1]||'—')}</p>`).join('');
+  h+=`<h2>2 y 3. Cadena de valor y diagnóstico</h2><table>${th(['Paso','Dolor','Costo','Falta de datos','Impacto'])}${S.acts.map((a,i)=>tr([esc(a)+(i===ci?' <b>(punto crítico)</b>':''),S.sl[i][0],S.sl[i][1],S.sl[i][2],f1(impactOf(i))])).join('')}</table><p class="sm">Escalas de 1 a 5; 5 es lo más grave. Impacto = dolor × costo ÷ 5.</p>`;
+  if(tot){h+=`<table>${th(['Trabajo','Qué lo atrasó','Paso','Días'])}${S.rows.filter(r=>(+r.d||0)>0||r.n).map(r=>tr([esc(r.n),esc(ca[+r.c][0])+(isOther(+r.c)&&r.o?': '+esc(r.o):''),esc(S.acts[stepOf(r)]),+r.d||0])).join('')}</table><p class="sm">Causa principal: ${esc(ca[arr[0].c][0])} (${Math.round(arr[0].d/tot*100)}% de ${tot} días perdidos).</p>`;}
+  h+=`<h2>4. Prioriza</h2>`;
+  if(its.length){h+=matrixSVG(its,CLIT).replace('width="100%"','width="520"');
+    h+=`<table>${th(['#','Iniciativa','Apuesta','Paso que ataca','Impacto','Esfuerzo','Cuadrante','Por qué la elegí'])}${its.map((i,n)=>tr([n+1,esc(i.name),esc(BETS[i.k].n),esc(S.acts[i.target]),f1(i.impact),i.effort,QN[i.q],esc(i.why||'—')])).join('')}</table>`;}
+  const nos=BK.filter(k=>S.bets[k].lv==null);
+  if(nos.length)h+=`<p class="sm">Apuestas que no aplican: ${nos.map(k=>esc(BETS[k].n)+(S.bets[k].why?' ('+esc(S.bets[k].why)+')':'')).join('; ')}.</p>`;
+  h+=`<h2>5. Habilita y prueba: plan de 30 días</h2>`;
+  if(pick)h+=[['Iniciativa con la que empiezo',pick.name+' ('+QN[pick.q]+')'],['Qué hago esta semana',P.first==null?d.first:P.first],['Quién lo hace',P.who],['Cómo sabré si funcionó',P.measure==null?d.measure:P.measure],['Hoy / meta en 30 días',(P.base||'—')+' / '+(P.goal||'—')],['Quién tiene que cambiar de hábito y cómo se lo explico',P.change]].map(x=>`<p><span class="k">${x[0]}</span><br>${esc(x[1]||'—')}</p>`).join('');
+  else h+='<p>Sin iniciativas elegidas.</p>';
+  return h+'</body></html>';
+}
+function allText(){
+  const its=initiatives(),ca=A_().causes,ci=critIdx();
+  return [`LABORATORIO DOMINO’S · TRABAJO INDIVIDUAL`,`${S.who||'(sin nombre)'} · ${new Date().toLocaleDateString('es-GT')}`,``,
+   `1. CLIENTE Y PROPÓSITO`,`Cliente: ${S.biz.client||'—'}`,`Dolor: ${S.biz.pain||'—'}`,`Por qué existo: ${S.biz.why||'—'}`,`Cómo: ${S.biz.how||'—'}`,`Qué vendo: ${S.biz.what||'—'}`,``,
+   `2 Y 3. CADENA Y DIAGNÓSTICO (dolor / costo / falta de datos / impacto)`,...S.acts.map((a,i)=>`- ${a}${i===ci?' [PUNTO CRÍTICO]':''}: ${S.sl[i].join(' / ')} / ${f1(impactOf(i))}`),``,
+   `Días perdidos:`,...S.rows.filter(r=>(+r.d||0)>0).map(r=>`- ${r.n||'(sin nombre)'}: ${ca[+r.c][0]}${isOther(+r.c)&&r.o?' ('+r.o+')':''}, paso “${S.acts[stepOf(r)]}”, ${r.d} días`),``,
+   `4. PRIORIZA`,...its.map((i,n)=>`${n+1}. ${i.name} · ${BETS[i.k].n} · ataca “${S.acts[i.target]}” · impacto ${f1(i.impact)}, esfuerzo ${i.effort} · ${QN[i.q]} · Por qué: ${i.why||'—'}`),``,
+   `5. `+planText()].join('\n');
+}
+
+function verdictTexts(its){const d=document.createElement('div');d.innerHTML=verdictHTML(its);return [...d.children].map(x=>x.textContent.replace(/\s+/g,' ').trim());}
+function buildPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'pt',format:'letter'});
+  const PW=612,PH=792,M=44,CW=PW-2*M;
+  const NAVY=[20,32,43],STEEL=[36,89,138],ACC=[201,48,26],OK=[37,112,63],MUTE=[86,100,116];
+  const BCOL={t:STEEL,p:ACC,c:OK};
+  const its=initiatives(),pick=its.find(i=>i.k===S.plan.pick),P=S.plan,ca=A_().causes,ci=critIdx(),d=pick?planDefaults(pick):null;
+  const T=x=>String(x==null?'':x).replace(/→/g,'->').replace(/−/g,'-').replace(/[^\x00-\xFF‘’“”–—•]/g,'');
+  let y=0;
+  const ensure=h=>{if(y+h>PH-46){doc.addPage();y=M;}};
+  // portada
+  doc.setFillColor(...NAVY);doc.rect(0,0,PW,92,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(23);doc.text(T('Laboratorio Domino’s'),M,46);
+  doc.setFont('helvetica','normal');doc.setFontSize(10.5);doc.text(T('Trabajo individual · Estrategia Digital · Maestría en Dirección Industrial'),M,66);
+  doc.setFont('helvetica','bold');doc.setFontSize(11);doc.text(T(S.who||'(sin nombre)'),PW-M,46,{align:'right'});
+  doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.text(T(new Date().toLocaleDateString('es-GT')+' · '+A_().name),PW-M,66,{align:'right'});
+  y=116;
+  if(S.example){doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.setTextColor(...ACC);doc.text(T('Atención: este trabajo conserva el ejemplo de la página y no se reemplazó por un negocio propio.'),M,y);y+=20;}
+  const H2=(txt)=>{ensure(48);doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(...NAVY);doc.text(T(txt),M,y+12);doc.setDrawColor(...NAVY);doc.setLineWidth(1.2);doc.line(M,y+18,PW-M,y+18);y+=32;};
+  const para=(label,text)=>{const lines=doc.splitTextToSize(T(text||'-'),CW);ensure(24+lines.length*13);doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...MUTE);doc.text(T(label).toUpperCase(),M,y+7);y+=11;doc.setFont('helvetica','normal');doc.setFontSize(10.5);doc.setTextColor(...NAVY);doc.text(lines,M,y+9);y+=lines.length*13+6;};
+  const note=(txt)=>{const lines=doc.splitTextToSize(T(txt),CW);ensure(lines.length*12+6);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...MUTE);doc.text(lines,M,y+8);y+=lines.length*12+6;};
+  const table=(head,body,opts)=>{doc.autoTable({startY:y,head:[head.map(T)],body:body.map(r=>r.map(T)),margin:{left:M,right:M,top:M,bottom:56},theme:'grid',styles:{font:'helvetica',fontSize:9,cellPadding:4,lineColor:[200,208,216],lineWidth:.5,textColor:NAVY,overflow:'linebreak',valign:'middle'},headStyles:{fillColor:NAVY,textColor:255,fontStyle:'bold'},alternateRowStyles:{fillColor:[247,249,251]},...opts});y=doc.lastAutoTable.finalY+12;};
+  // 1
+  H2('1. Cliente y propósito');
+  [['Mi cliente principal',S.biz.client],['Lo que más le duele',S.biz.pain],['Por qué existo',S.biz.why],['Cómo lo hago diferente',S.biz.how],['Qué vendo',S.biz.what]].forEach(x=>para(x[0],x[1]));
+  // 2-3
+  H2('2 y 3. Cadena de valor y diagnóstico');
+  table(['Paso de mi cadena','Dolor','Costo','Falta de datos','Impacto'],S.acts.map((a,i)=>[a+(i===ci?'  (punto crítico)':''),S.sl[i][0],S.sl[i][1],S.sl[i][2],f1(impactOf(i))]),
+    {columnStyles:{1:{halign:'center',cellWidth:48},2:{halign:'center',cellWidth:48},3:{halign:'center',cellWidth:78},4:{halign:'center',cellWidth:58,fontStyle:'bold'}},didParseCell:h=>{if(h.section==='body'&&h.row.index===ci){h.cell.styles.fillColor=[251,230,225];}}});
+  note('Escalas de 1 a 5; 5 es lo más grave. Impacto = dolor × costo ÷ 5. El punto crítico se marca en rojo claro.');
+  const {arr,tot}=pareto();
+  const rows=S.rows.filter(r=>(+r.d||0)>0||r.n);
+  if(rows.length){ensure(60);table(['Trabajo o pedido','Qué lo atrasó','Paso','Días'],rows.map(r=>[r.n,ca[+r.c][0]+(isOther(+r.c)&&r.o?': '+r.o:''),S.acts[stepOf(r)],+r.d||0]),{columnStyles:{3:{halign:'center',cellWidth:44}}});}
+  if(tot)note('Causa principal: '+ca[arr[0].c][0]+' ('+Math.round(arr[0].d/tot*100)+'% de '+tot+' días perdidos).');
+  // 4
+  H2('4. Prioriza: impacto vs. esfuerzo');
+  if(its.length){
+    const mw=300,mh=236;ensure(mh+10);
+    const x0=M,y0=y,l=28,t=6,r=8,b=26,pw=mw-l-r,ph=mh-t-b;
+    const px=v=>x0+l+(v-1)/4*pw,py=v=>y0+t+(5-v)/4*ph;
+    const sx=px(3),sy=py(3);
+    doc.setFillColor(223,240,229);doc.rect(x0+l,y0+t,sx-x0-l,sy-y0-t,'F');
+    doc.setFillColor(225,236,246);doc.rect(sx,y0+t,x0+l+pw-sx,sy-y0-t,'F');
+    doc.setFillColor(248,237,211);doc.rect(x0+l,sy,sx-x0-l,y0+t+ph-sy,'F');
+    doc.setFillColor(251,230,225);doc.rect(sx,sy,x0+l+pw-sx,y0+t+ph-sy,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(7.5);
+    doc.setTextColor(...OK);doc.text('VICTORIAS FÁCILES',x0+l+5,y0+t+11);
+    doc.setTextColor(...STEEL);doc.text('APUESTAS GRANDES',x0+l+pw-5,y0+t+11,{align:'right'});
+    doc.setTextColor(143,90,12);doc.text('MEJORAS MENORES',x0+l+5,y0+t+ph-6);
+    doc.setTextColor(...ACC);doc.text('DESCARTAR O ESPERAR',x0+l+pw-5,y0+t+ph-6,{align:'right'});
+    doc.setDrawColor(150,160,170);doc.setLineWidth(.5);doc.rect(x0+l,y0+t,pw,ph);
+    doc.setLineDashPattern([3,3],0);doc.line(sx,y0+t,sx,y0+t+ph);doc.line(x0+l,sy,x0+l+pw,sy);doc.setLineDashPattern([],0);
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...MUTE);
+    for(let v=1;v<=5;v++){doc.text(String(v),px(v),y0+t+ph+11,{align:'center'});doc.text(String(v),x0+l-6,py(v)+3,{align:'right'});}
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...NAVY);doc.text('ESFUERZO',x0+l+pw/2,y0+mh-2,{align:'center'});
+    doc.text('IMPACTO',x0+8,y0+t+ph/2,{angle:90,align:'center'});
+    const used={};
+    its.forEach((i,n)=>{const key=Math.round(i.effort*2)+'_'+Math.round(i.impact*2);const u=used[key]=(used[key]||0)+1;
+      const cx=px(i.effort)+(u-1)*16,cy=py(i.impact)-(u-1)*7;
+      alts(i).forEach(a=>{const gx=px(a.x),gy=py(a.y);doc.setDrawColor(...BCOL[i.k]);doc.setLineWidth(1);doc.setLineDashPattern([2,2],0);doc.line(cx,cy,gx,gy);doc.circle(gx,gy,9,'S');doc.setLineDashPattern([],0);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...BCOL[i.k]);doc.text((n+1)+'’',gx,gy+3,{align:'center'});});
+      doc.setFillColor(...BCOL[i.k]);doc.circle(cx,cy,10,'F');doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(255,255,255);doc.text(String(n+1),cx,cy+3.5,{align:'center'});});
+    // veredicto a la derecha
+    let vy=y0+8;const vx=M+mw+16,vw=CW-mw-16;
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...NAVY);
+    verdictTexts(its).forEach(tx=>{const lines=doc.splitTextToSize(T(tx),vw);if(vy+lines.length*11>y0+mh)return;doc.text(lines,vx,vy+8);vy+=lines.length*11+8;});
+    y=y0+mh+10;
+    table(['#','Iniciativa','Apuesta','Paso que ataca','Imp.','Esf.','Cuadrante'],its.map((i,n)=>[n+1,i.name,BETS[i.k].n,S.acts[i.target],f1(i.impact),i.effort,QN[i.q]]),{columnStyles:{0:{halign:'center',cellWidth:22},4:{halign:'center',cellWidth:32},5:{halign:'center',cellWidth:32},6:{cellWidth:68}}});
+    ensure(30);
+    its.forEach((i,n)=>para((n+1)+'. Por qué la elegí',i.why||'-'));
+  }else note('No se eligieron iniciativas.');
+  const nos=BK.filter(k=>S.bets[k].lv==null);
+  if(nos.length)note('Apuestas que no aplican: '+nos.map(k=>BETS[k].n+(S.bets[k].why?' ('+S.bets[k].why+')':'')).join('; ')+'.');
+  // 5
+  H2('5. Habilita y prueba: plan de 30 días');
+  if(pick){
+    [['Iniciativa con la que empiezo',pick.name+' ('+QN[pick.q]+')'],['Qué hago esta semana',P.first==null?d.first:P.first],['Quién lo hace',P.who],['Cómo sabré si funcionó',P.measure==null?d.measure:P.measure],['Hoy / meta en 30 días',(P.base||'-')+' / '+(P.goal||'-')],['Quién tiene que cambiar de hábito y cómo se lo explico',P.change]].forEach(x=>para(x[0],x[1]));
+  }else note('Sin iniciativas elegidas.');
+  // pie
+  const n=doc.getNumberOfPages();
+  for(let i=1;i<=n;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...MUTE);doc.text(T('Laboratorio Domino’s · '+(S.who||'trabajo individual')),M,PH-26);doc.text(T('Página '+i+' de '+n),PW-M,PH-26,{align:'right'});}
+  return doc.output('blob');
+}
+async function setupDownloads(){
+  let dl=null;try{if(window.claude&&claude.use)dl=await claude.use('downloads');}catch(e){}
+  const pb=$('#pdfBtn');
+  pb.addEventListener('click',async()=>{
+    const m=$('#dlMsg');
+    if(!dl){m.textContent='Esta vista no permite descargar archivos desde la página. Ábrela desde su enlace completo, o usa “Copiar todo mi trabajo”.';setTimeout(()=>{m.textContent='';},9000);return;}
+    if(!(window.jspdf&&window.jspdf.jsPDF)){m.textContent='No se pudo cargar el generador de PDF. Intenta de nuevo o descarga la página web.';return;}
+    try{const nm=(S.who||'mi_trabajo').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_');
+      await dl.save({filename:`Laboratorio_Dominos_${nm}.pdf`,data:buildPDF()});m.textContent='PDF guardado.';}
+    catch(err){m.textContent=(err&&err.code==='declined')?'Cancelado.':'No se pudo generar el PDF aquí: usa “Copiar todo mi trabajo”.';}
+    setTimeout(()=>{m.textContent='';},6000);
+  });
+  const b=$('#dlBtn');
+  b.addEventListener('click',async()=>{
+    const m=$('#dlMsg');
+    if(!dl){m.textContent='Esta vista no permite descargar archivos desde la página. Ábrela desde su enlace completo, o usa “Copiar todo mi trabajo” y pégalo en un documento.';setTimeout(()=>{m.textContent='';},9000);return;}
+    try{const nm=(S.who||'mi_trabajo').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,'_');
+      await dl.save({filename:`Laboratorio_Dominos_${nm}.html`,data:summaryHTML()});m.textContent='Guardado. Ábrelo en tu navegador para revisarlo o guardarlo como PDF.';}
+    catch(err){m.textContent=(err&&err.code==='declined')?'Cancelado.':'No se pudo descargar aquí: usa “Copiar todo mi trabajo”.';}
+    setTimeout(()=>{m.textContent='';},6000);
+  });
+}
+$('#copyAll').addEventListener('click',async()=>{
+  const txt=allText(),m=$('#dlMsg');
+  try{await navigator.clipboard.writeText(txt);m.textContent='Copiado. Pégalo en tu documento.';}
+  catch(err){const ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy');}catch(_){}ta.remove();m.textContent=ok?'Copiado. Pégalo en tu documento.':'No se pudo copiar solo.';}
+  setTimeout(()=>{m.textContent='';},6000);
+});
+$('#btnTheme').addEventListener('click',()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark';});
+
+const io=new IntersectionObserver(es=>{es.forEach(x=>{if(x.isIntersecting)$$('#bar a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+x.target.id));});},{rootMargin:'-30% 0px -60% 0px'});
+['e1','e2','e3','e4','e5'].forEach(id=>io.observe(document.getElementById(id)));
+
+S=load();
+renderAll();
+setupDownloads();
+</script>
+
+</body></html>
