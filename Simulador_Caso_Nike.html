@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador Nike</title>
+<style>
+:root{--bg:#f1f5f9;--panel:#fff;--inner:#f8fafc;--ink:#0f172a;--navy:#1e3a8a;--blue:#2563eb;--cyan:#0ea5e9;--gold:#d97706;--ok:#16a34a;--bad:#dc2626;--mut:#64748b;--line:#cbd5e1;--soft:#eff6ff}
+*{box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:18px;display:flex;justify-content:center}
+.cockpit{max-width:1240px;width:100%;background:var(--panel);border-radius:16px;padding:26px;box-shadow:0 10px 30px rgba(0,0,0,.08);border:1px solid var(--line)}
+.header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--line);padding-bottom:14px;margin-bottom:18px;gap:12px;flex-wrap:wrap}
+.header h1{margin:0;font-size:1.55rem;color:var(--navy);letter-spacing:.4px}
+.sub{font-size:.85rem;color:var(--mut)}
+.badge{background:var(--navy);color:#fff;padding:6px 16px;border-radius:20px;font-weight:bold;font-size:.9rem}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.kpi{background:var(--inner);padding:12px 14px;border-radius:8px;border:1px solid var(--line)}
+.kpi .t{font-size:.7rem;color:var(--mut);text-transform:uppercase;font-weight:bold;letter-spacing:.4px}
+.kpi .v{font-size:1.4rem;font-weight:bold;margin:3px 0 1px}
+.kpi .s{font-size:.74rem;color:var(--mut)}
+.kpi .d{font-size:.78rem;font-weight:bold}
+.up{color:var(--ok)}.down{color:var(--bad)}.flat{color:var(--gold)}
+.card{background:var(--soft);border:1px solid #bfdbfe;border-left:5px solid var(--blue);padding:14px 18px;border-radius:8px;margin-bottom:16px;font-size:.92rem;line-height:1.45}
+.card a{color:var(--blue);font-weight:bold}
+.scenario{border-left:5px solid var(--gold);background:linear-gradient(90deg,#f1f5f9,#fff);padding:16px 18px;border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:0 10px 10px 0;margin-bottom:16px;line-height:1.5;font-size:.95rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.box{background:var(--inner);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.box h3{margin:0 0 8px;font-size:.95rem;color:var(--navy)}
+.box ul{margin:0;padding-left:18px;font-size:.88rem;line-height:1.5}
+.goal{display:flex;justify-content:space-between;gap:8px;font-size:.88rem;padding:4px 0;border-bottom:1px dashed var(--line)}
+.goal:last-child{border-bottom:none}
+.goal b{white-space:nowrap}
+.st{font-size:1.05rem;font-weight:bold;color:var(--navy);margin:20px 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.hint{font-size:.82rem;color:var(--mut);font-weight:normal}
+.budget{display:flex;justify-content:space-between;align-items:center;background:var(--inner);border:1px solid var(--line);padding:10px 16px;border-radius:8px;font-weight:bold;font-size:.9rem;margin-bottom:8px;gap:10px;flex-wrap:wrap}
+.bbar{height:14px;border-radius:7px;background:#e2e8f0;overflow:hidden;display:flex;margin-bottom:14px}
+.bbar div{height:100%}
+.sl{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.slc{background:var(--inner);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.slc label{display:flex;justify-content:space-between;align-items:center;font-size:.84rem;font-weight:bold;gap:6px}
+.slc .amt{color:var(--blue)}
+.slc input[type=range]{width:100%;margin:8px 0 4px}
+.slc .cap{font-size:.78rem;color:var(--mut);margin-top:2px}
+.capbar{height:10px;border-radius:5px;background:#e2e8f0;position:relative;margin-top:4px;overflow:hidden}
+.capbar .a{position:absolute;left:0;top:0;bottom:0;background:#94a3b8}
+.capbar .b{position:absolute;left:0;top:0;bottom:0;background:var(--blue);opacity:.85}
+.capbar .b.neg{background:var(--bad)}
+.btn-i{background:#e2e8f0;border:none;border-radius:50%;width:20px;height:20px;font-size:.75rem;font-weight:bold;cursor:pointer;flex:none}
+.btn-i:hover{background:#cbd5e1}
+.mini{background:#f1f5f9;border:1px solid var(--line);padding:6px 12px;border-radius:6px;font-size:.8rem;font-weight:bold;cursor:pointer}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ch{border:2px solid var(--line);background:var(--inner);border-radius:10px;padding:12px 14px;cursor:pointer;transition:.15s}
+.ch:hover{border-color:#93c5fd}
+.ch.sel{border-color:var(--blue);background:#eff6ff;box-shadow:0 0 0 3px #dbeafe}
+.ch .ti{font-weight:bold;color:var(--navy);margin-bottom:5px;font-size:.92rem}
+.ch .de{font-size:.82rem;color:#334155;line-height:1.4}
+.mix{display:flex;height:16px;border-radius:8px;overflow:hidden;margin:8px 0 4px;font-size:.66rem;color:#fff;font-weight:bold}
+.mix span{display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden}
+.legend{font-size:.72rem;color:var(--mut)}
+.trade{font-size:.78rem;margin-top:6px;line-height:1.4}
+.trade b.p{color:var(--ok)}.trade b.n{color:var(--bad)}
+.adv{display:grid;grid-template-columns:1fr 1fr;gap:14px;background:var(--inner);border:1px solid var(--line);border-radius:10px;padding:14px}
+.adv label{font-size:.85rem;font-weight:bold;color:var(--navy);display:block;margin-bottom:4px}
+.adv select{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;font-size:.84rem}
+.adv .fx{font-size:.78rem;color:var(--mut);margin-top:5px;line-height:1.35}
+.exec{width:100%;margin-top:18px;padding:15px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:1.05rem;font-weight:bold;cursor:pointer}
+.exec:disabled{background:#94a3b8;cursor:not-allowed}
+.exec:not(:disabled):hover{background:var(--blue)}
+.debrief{border:2px solid var(--navy);border-radius:12px;padding:18px}
+.tabs{display:flex;gap:6px;border-bottom:2px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.tab{background:#f1f5f9;border:1px solid var(--line);border-bottom:none;padding:9px 14px;border-radius:8px 8px 0 0;cursor:pointer;font-weight:bold;font-size:.85rem;color:var(--mut)}
+.tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tc{display:none}.tc.on{display:block}
+.zones{display:flex;gap:6px;flex-wrap:wrap}
+.zone{flex:1;min-width:90px;text-align:center;padding:8px 4px;border-radius:8px;border:2px solid;font-weight:bold;font-size:.85rem;opacity:.4}
+.zone.on{opacity:1;color:#fff}
+.zone small{display:block;font-weight:normal;font-size:.68rem}
+.prog{margin:10px 0}
+.prog .l{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:3px;gap:8px;flex-wrap:wrap}
+.pbar{height:16px;background:#e2e8f0;border-radius:8px;position:relative;overflow:hidden}
+.pbar i{position:absolute;left:0;top:0;bottom:0;border-radius:8px}
+.pbar u{position:absolute;right:0;top:0;bottom:0;width:3px;background:var(--ink);opacity:.5}
+.why{list-style:none;padding:0;margin:0}
+.why li{background:var(--inner);border-left:4px solid var(--blue);padding:9px 13px;margin-bottom:7px;border-radius:0 8px 8px 0;font-size:.88rem;line-height:1.45}
+.why li.bad{border-left-color:var(--bad)}.why li.good{border-left-color:var(--ok)}.why li.warn{border-left-color:var(--gold)}
+.capgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.barrow{margin-bottom:13px}
+.barlab{display:flex;justify-content:space-between;font-size:.84rem;margin-bottom:3px;flex-wrap:wrap;gap:6px}
+.track{height:18px;background:#e2e8f0;border-radius:9px;position:relative;overflow:hidden}
+.track .p{position:absolute;left:0;top:0;bottom:0;background:#94a3b8;opacity:.6}
+.track .c{position:absolute;left:0;top:0;bottom:0;border-radius:9px;height:9px;top:9px}
+.chart{background:var(--inner);border:1px solid var(--line);border-radius:10px;padding:12px}
+.chart svg{width:100%;height:290px}
+table.t{width:100%;border-collapse:collapse;font-size:.82rem;margin-bottom:10px}
+table.t th,table.t td{border:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+table.t th{background:var(--navy);color:#fff}
+table.t td:first-child{font-weight:bold;background:var(--inner)}
+.gate{background:var(--soft);border:2px dashed var(--blue);border-radius:10px;padding:16px;margin-top:16px;text-align:center}
+.gate .act{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.retry{background:#fff;color:var(--bad);border:2px solid var(--bad);padding:9px 16px;border-radius:8px;font-weight:bold;cursor:pointer}
+.unlock{background:var(--navy);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:bold;cursor:pointer}
+.pw{padding:9px;border:2px solid var(--line);border-radius:8px;text-align:center;letter-spacing:2px;text-transform:uppercase}
+.gloss{font-size:.85rem;line-height:1.6;columns:2;column-gap:28px}
+details.g{background:var(--inner);border:1px solid var(--line);border-radius:10px;padding:10px 16px;margin-bottom:16px}
+details.g summary{cursor:pointer;font-weight:bold;color:var(--navy)}
+.final{background:linear-gradient(135deg,#eff6ff,#fff);border:2px solid var(--navy);border-radius:12px;padding:18px;margin-bottom:14px;text-align:center}
+.mo{display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:50;align-items:center;justify-content:center;padding:16px}
+.mc{background:#fff;border-radius:12px;padding:22px;max-width:560px;width:100%;max-height:85vh;overflow:auto}
+.mh{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:12px}
+.mh h3{margin:0;color:var(--navy);font-size:1.05rem}
+.mx{background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--mut)}
+.cp{font-size:.8rem;font-weight:bold;background:var(--blue);color:#fff;border:none;border-radius:6px;padding:7px 12px;cursor:pointer;margin:0 8px 8px 0}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.sl,.choices,.two,.adv,.capgrid{grid-template-columns:1fr}.gloss{columns:1}}
+</style>
+</head>
+<body>
+<div class="cockpit">
+<div class="header">
+  <div><h1>Simulador Nike - Sobredosis DTC</h1>
+  <div class="sub">Simulador estratégico de transformación digital y arquitectura empresarial · Nike Athletics 2020–2024 (DTC = Direct-to-Consumer, venta directa al consumidor)</div></div>
+  <span class="badge" id="lbl-year">AÑO 1 DE 4</span>
+</div>
+
+<div class="kpis" id="kpis"></div>
+
+<details class="g" id="gloss"><summary>📘 Glosario y cómo se juega (clic para abrir o cerrar)</summary>
+<div style="margin-top:10px;font-size:.88rem;line-height:1.55">
+<b>Cómo se juega:</b> cada año tienen un presupuesto de $1,000,000 USD. Reparten dinero entre 6 pilares, eligen una postura de canales y una arquitectura de tecnología. Cada pilar <b>construye una capacidad</b> de la empresa (por ejemplo, plataforma o logística). Las capacidades <b>se acumulan de un año a otro, pero también se desgastan si no se mantienen</b>. Una parte de lo invertido madura hasta el año siguiente. Al terminar el año verán qué tan cerca quedaron de los objetivos y <b>por qué</b> pasó lo que pasó.
+</div>
+<div class="gloss" style="margin-top:10px">
+<b>DTC (Direct-to-Consumer):</b> vender directo al consumidor, sin intermediarios.<br>
+<b>Mayorista:</b> tienda de terceros que revende (Foot Locker, tiendas deportivas).<br>
+<b>Marketplace:</b> plataforma que vende por ti y cobra comisión (Amazon).<br>
+<b>EBITDA (ganancia antes de intereses, impuestos, depreciación y amortización):</b> mide la ganancia operativa del negocio.<br>
+<b>CAC (costo de adquisición de cliente):</b> cuánto cuesta conseguir un cliente nuevo.<br>
+<b>LTV (Lifetime Value, valor de vida del cliente):</b> cuánto deja un cliente en toda su relación con la marca.<br>
+<b>Fulfillment:</b> todo el proceso de preparar y entregar un pedido.<br>
+<b>Logística inversa:</b> manejar devoluciones y cambios.<br>
+<b>API (Application Programming Interface, interfaz de programación):</b> conexión que permite que dos sistemas se hablen.<br>
+<b>Headless:</b> separar lo que ve el cliente (web/app) del sistema que está detrás.<br>
+<b>CDP (Customer Data Platform, plataforma de datos de clientes):</b> junta los datos de cada cliente en un solo lugar.<br>
+<b>CRM (Customer Relationship Management, gestión de la relación con clientes):</b> software para registrar y dar seguimiento a clientes.<br>
+<b>ERP (Enterprise Resource Planning, sistema central de la empresa):</b> sistema que maneja inventario, finanzas y pedidos.<br>
+<b>ETL (Extract, Transform, Load, extraer-transformar-cargar):</b> mover datos entre sistemas por lotes, por ejemplo una vez al día.<br>
+<b>First-Party Data:</b> datos que el cliente te da directamente.<br>
+<b>DX (Digital Experience, madurez digital):</b> qué tan madura es la empresa digitalmente, de 0 a 100.<br>
+<b>KPI (Key Performance Indicator, indicador clave de desempeño):</b> número que mide si vas bien.
+</div></details>
+
+<div id="briefing"></div>
+<div id="decision"></div>
+<div id="debrief" style="display:none"></div>
+</div>
+
+<div class="mo" id="modal" onclick="closeInfo()"><div class="mc" onclick="event.stopPropagation()"><div class="mh"><h3 id="mt"></h3><button class="mx" onclick="closeInfo()">×</button></div><div id="mb" style="font-size:.92rem;line-height:1.5;color:#334155"></div></div></div>
+
+<script>
+/* Motor del simulador Nike v3: capacidades acumulables, rezagos, competidores y shocks. */
+(function(root){
+const CAP0 = { plat:25, logi:22, app:15, data:12, store:55, ws:70 };
+const MIX = { 1:{d:.65,w:.15,m:.20}, 2:{d:.35,w:.50,m:.15}, 3:{d:.10,w:.20,m:.70} };
+const MIX0 = { d:.30, w:.62, m:.08 };
+const TIME = {
+  0:{boom:1.00,priv:0,comp:0,mkt:1.00,fp:1.00,wsd:1.0},
+  1:{boom:2.00,priv:0.00,comp:1.0,mkt:1.07,fp:1.14,wsd:0.62},
+  2:{boom:1.45,priv:0.15,comp:1.4,mkt:1.06,fp:1.03,wsd:0.80},
+  3:{boom:1.00,priv:0.80,comp:1.9,mkt:1.04,fp:0.92,wsd:1.00},
+  4:{boom:0.92,priv:0.60,comp:2.4,mkt:1.04,fp:0.95,wsd:1.06}
+};
+const GROW = { // máx. ganancia/año, escala $k, desgaste anual
+  plat:{max:48,k:180,dec:.09}, logi:{max:46,k:170,dec:.12}, app:{max:44,k:180,dec:.11},
+  data:{max:42,k:170,dec:.06}, store:{max:40,k:140,dec:.09}
+};
+const INV_KEY = { plat:'s1', logi:'s2', app:'s3', store:'s5', data:'s6' };
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const geo=a=>Math.exp(a.reduce((s,x)=>s+Math.log(Math.max(1,x)),0)/a.length);
+
+function techParams(dec){
+  const archI = {event_driven:1.25,hybrid_api:1.0,legacy_erp:0.75}[dec.arch];
+  const archS = {event_driven:1,hybrid_api:.5,legacy_erp:0}[dec.arch];
+  const cdpM  = {lakehouse:1.30,crm_suite:1.0,sql_silos:0.70}[dec.cdp];
+  const cdpS  = {lakehouse:1,crm_suite:.5,sql_silos:0}[dec.cdp];
+  return {archI,archS,cdpM,cdpS};
+}
+function techCost(dec){ return ({lakehouse:150,crm_suite:75,sql_silos:0}[dec.cdp]) + ({event_driven:150,hybrid_api:50,legacy_erp:0}[dec.arch]); }
+function spendOf(dec){ return ['s1','s2','s3','s4','s5','s6'].reduce((a,k)=>a+dec[k],0) + techCost(dec); }
+
+// Núcleo: calcula KPIs dado el estado de capacidades al inicio/fin del año y las decisiones.
+function kpis(t, caps0, caps1, dec, st){
+  const T = TIME[t], mix = t===0 ? MIX0 : MIX[dec.posture];
+  const P = techParams(dec);
+  const eff = k => caps0[k] + 0.6*(caps1[k]-caps0[k]);   // rezago: 60% de lo invertido rinde este año
+  const plat=eff('plat'), logi=eff('logi'), app=eff('app'), data=eff('data'), store=eff('store'), ws=eff('ws');
+  const I4 = t===0?0:dec.s4;
+  // Pauta: más tráfico, pero menos eficaz tras los cambios de privacidad si no hay datos propios
+  const privEff = 1/(1 + T.priv*(1-0.7*data/100));
+  const adBoost = 1 + 0.35*(1-Math.exp(-I4/220))*privEff;
+  // Plataforma: puede o no soportar el pico de demanda digital
+  const needed = 20*T.boom*Math.pow(mix.d/0.3,0.5);
+  const conv = clamp(plat/needed,0.55,1);
+  const qd = (0.35+0.0045*plat+0.0035*app+0.002*data)*T.boom;
+  const qw = 0.55+0.006*ws+0.0025*store;
+  const omni = Math.cbrt(Math.max(1,plat)*Math.max(1,app)*Math.max(1,store))/100;
+  const omniS = omni*Math.min(1,mix.w/0.35)*Math.min(1,ws/60);
+  const omniBoost = 1+0.30*omniS;
+  const didx = mix.d*qd*conv*adBoost, widx = mix.w*qw*T.wsd, midx = mix.m*0.95;
+  const raw = (didx+widx+midx)*omniBoost;
+  const presence = mix.w*qw;  // la presencia física mide el acuerdo comercial, no la demanda del año
+  const out = {mix,plat,logi,app,data,store,ws,conv,omni:omniS,needed,adBoost,privEff,presence,raw};
+  // volumen digital vs capacidad logística
+  const shareApprox = 18.5*raw/st.base;
+  const overload = Math.max(0, (mix.d+mix.m)*(shareApprox/18.5) - logi/60);
+  out.overload = overload;
+  // fricción
+  const x = .0035*app+.0025*data+.0012*store;
+  out.friction = clamp(40*(1-x)*(0.8+0.5*(mix.d+mix.m)) + 25*overload + st.fOff, 8, 55);
+  out.fulf = clamp(28+0.55*logi+0.2*plat+0.1*store - 30*overload + st.fuOff, 15, 98);
+  // CAC
+  const organic = clamp(0.05+0.008*app+0.005*data,0,0.8);
+  const sat = I4/300;
+  const paid = 54.5*(1+0.45*Math.pow(sat,1.2))*(1+T.priv*(1-0.7*data/100));
+  out.cac = Math.max(12, paid*(1-organic)*st.cacK);
+  out.organic = organic;
+  // LTV
+  out.ltv = 60 + 0.45*app+0.25*data+0.08*store - 18*mix.m - 0.25*(out.friction-34) + 12*omniS + st.ltvOff;
+  // DX
+  const integ = (P.archS+P.cdpS)/2;
+  out.dx = clamp(1.45*geo([plat,data,app,logi,store]) + 8*integ + st.dxOff, 0, 100);
+  return out;
+}
+
+function baselineStatus(){
+  const st = {base:1,fOff:0,fuOff:0,cacK:1,ltvOff:0,dxOff:0,mOff:0};
+  const dec0 = {arch:'legacy_erp',cdp:'sql_silos',posture:2,s1:0,s2:0,s3:0,s4:0,s5:0,s6:0};
+  const k = kpis(0,CAP0,CAP0,dec0,st);
+  st.base = k.raw;
+  const k2 = kpis(0,CAP0,CAP0,dec0,st);
+  st.fOff = 34 - k2.friction; st.fuOff = 52 - k2.fulf; st.cacK = 42/k2.cac; st.ltvOff = 85-k2.ltv; st.dxOff = 20-k2.dx;
+  // margen: costo fijo calibrado
+  const g = mix => mix.d*.62+mix.w*.33+mix.m*.22;
+  const k3 = kpis(0,CAP0,CAP0,dec0,st);
+  const varCost = (MIX0.d+0.7*MIX0.m)*34/100*0.20 + (MIX0.d+MIX0.m)*(1-52/100)*0.12 + MIX0.d*(42/42)*0.10;
+  st.fixedPct0 = (g(MIX0)-varCost)*100 - 12.5; // % de ingresos que son costos fijos en año 0
+  st.fixed0 = st.fixedPct0/100*450;
+  return st;
+}
+const ST = baselineStatus();
+
+function initialState(){
+  return { caps:{...CAP0}, comp:0, prevW:MIX0.w, mktCum:1, share:18.5, margin:12.5, friction:34, cac:42, rev:450, ltv:85, fulf:52, dx:20, year:0 };
+}
+
+function capsStep(state, dec){
+  const P = techParams(dec), mix = MIX[dec.posture];
+  const c0 = state.caps, c1 = {...c0};
+  const legacyDebt = dec.arch==='legacy_erp' ? 0.06 : 0;
+  const gains = {};
+  for (const k of Object.keys(GROW)){
+    const g = GROW[k], inv = dec[INV_KEY[k]];
+    const mult = {plat:P.archI, logi:0.5+0.5*P.archI, app:P.cdpM*Math.sqrt(P.archI), data:P.cdpM, store:Math.sqrt(P.archI)}[k];
+    let gain = g.max*(1-Math.exp(-inv/g.k))*mult*Math.max(0.15,1-c0[k]/115);
+    // Volante de datos: vender directo genera datos propios y usuarios de la app sin costo adicional
+    if (k==='data') gain += 14*mix.d*P.cdpM*Math.max(0.15,1-c0[k]/115);
+    if (k==='app') gain += 9*mix.d*Math.max(0.15,1-c0[k]/115);
+    const dec_ = g.dec + ((k==='plat'||k==='logi')?legacyDebt:0);
+    c1[k] = clamp(c0[k]*(1-dec_)+gain, 0, 100);
+    gains[k] = gain;
+  }
+  const dW = mix.w-0.35; c1.ws = clamp(c0.ws + (dW<0 ? 70*dW : 28*dW), 15, 90);  // se pierde confianza rápido y se recupera lento
+  return {c0,c1,gains};
+}
+
+function stepYear(state, dec){
+  const t = state.year+1, T = TIME[t], P = techParams(dec);
+  const mix = MIX[dec.posture];
+  const {c0,c1,gains} = capsStep(state, dec);
+  // 2) KPIs
+  const k = kpis(t,c0,c1,dec,ST);
+  // 3) Competidores ocupan el estante si la presencia física es baja
+  const gap = Math.max(0, 0.35 - k.presence);
+  const compGain = 7*gap*T.comp;
+  const comp = state.comp*0.93 + compGain;
+  // 4) Cuota, ingresos
+  const share = clamp(18.5*k.raw/ST.base - comp, 4, 45);
+  const mktCum = state.mktCum*T.mkt;
+  const rev = 450*(share/18.5)*mktCum;
+  // 5) Margen
+  const g = mix.d*.62*T.fp+mix.w*.33+mix.m*.22;
+  const ret = (mix.d+0.7*mix.m)*k.friction/100*0.20;
+  const hand = (mix.d+mix.m)*(1-k.fulf/100)*0.12;
+  const mkt = mix.d*(k.cac/42)*0.10;
+  const fixed = ST.fixed0*(1+0.03*t)/rev;
+  const spend = spendOf(dec);
+  const margin = (g-ret-hand-mkt-fixed)*100 - 1.5*spend/1000;
+  const next = { caps:c1, comp, prevW:mix.w, mktCum, share, margin, friction:k.friction, cac:k.cac, rev, ltv:k.ltv, fulf:k.fulf, dx:k.dx, year:t };
+  const detail = { t, k, gains, compGain, comp, gap, spend, parts:{g:g*100,ret:ret*100,hand:hand*100,mkt:mkt*100,fixed:fixed*100,program:1.5*spend/1000}, mix, caps0:c0, caps1:c1 };
+  return { next, detail };
+}
+
+const OBJECTIVES = {
+  1:{ title:'Desintermediación', goals:[ {k:'margin',op:'>=',v:13.5,label:'Margen EBITDA (ganancia operativa)'}, {k:'share',op:'>=',v:19.0,label:'Cuota de mercado'}, {k:'dx',op:'>=',v:32,label:'Madurez DX (digital)'} ] },
+  2:{ title:'Logística y devoluciones', goals:[ {k:'friction',op:'<=',v:27,label:'Tasa de devolución'}, {k:'fulf',op:'>=',v:65,label:'Eficiencia de fulfillment'}, {k:'margin',op:'>=',v:16,label:'Margen EBITDA (ganancia operativa)'} ] },
+  3:{ title:'Privacidad y CAC', goals:[ {k:'cac',op:'<=',v:28,label:'CAC (costo de adquisición de cliente)'}, {k:'ltv',op:'>=',v:110,label:'LTV (valor de vida del cliente)'}, {k:'margin',op:'>=',v:17,label:'Margen EBITDA (ganancia operativa)'} ] },
+  4:{ title:'Omnicanalidad (Store Mode)', goals:[ {k:'margin',op:'>=',v:18,label:'Margen EBITDA (ganancia operativa)'}, {k:'share',op:'>=',v:22,label:'Cuota de mercado'}, {k:'dx',op:'>=',v:85,label:'Madurez DX (digital)'} ] }
+};
+function progress(goal, startVal, val){
+  const down = goal.op==='<=';
+  const span = down ? (startVal-goal.v) : (goal.v-startVal);
+  const got = down ? (startVal-val) : (val-startVal);
+  if (span<=0) return (down? val<=goal.v : val>=goal.v) ? 1 : 0;
+  return got/span;
+}
+function evaluate(year, prev, cur){
+  const o = OBJECTIVES[year];
+  const rows = o.goals.map(g=>{ const p = progress(g, prev[g.k], cur[g.k]); const met = g.op==='<=' ? cur[g.k]<=g.v : cur[g.k]>=g.v; return {goal:g, p, met, start:prev[g.k], val:cur[g.k]}; });
+  const score = Math.round(100*rows.reduce((a,r)=>a+clamp(r.p,0,1),0)/rows.length);
+  return {rows, score, allMet: rows.every(r=>r.met)};
+}
+const api = {capsStep,CAP0,MIX,MIX0,TIME,GROW,ST,OBJECTIVES,initialState,stepYear,evaluate,techCost,spendOf,kpis,clamp};
+if (typeof module!=='undefined') module.exports = api; else root.NikeEngine = api;
+})(typeof window!=='undefined'?window:globalThis);
+
+const E = NikeEngine;
+const keys = {1:'DX2026-N2', 2:'RETAIN-N3', 3:'DRIVE-N4'};
+const LINK1 = 'https://investors.nike.com/news-events/press-releases/detail/78/nike-announces-senior-leadership-changes-to-unlock-future-growth-through-the-consumer-direct-acceleration';
+const PILLARS = [
+ {id:'s1',cap:'plat',name:'1. Arquitectura Headless y APIs de e-commerce',short:'Plataforma digital',col:'#2563eb',
+  info:'Qué construye: la CAPACIDAD DE PLATAFORMA. Separa lo que ve el cliente (web y app) del sistema de atrás (ERP, base de datos) mediante APIs (interfaces de programación). Permite cargar rápido y sincronizar inventario.\n\nCuándo importa: cuando la demanda digital sube y el volumen es alto. Si tu plataforma es débil, la tienda web se satura y pierdes ventas.\n\nCuidado: se desgasta cada año si no la mantienes, y rinde menos con un ERP heredado.'},
+ {id:'s2',cap:'logi',name:'2. Logística inversa y micro-fulfillment',short:'Logística',col:'#0ea5e9',
+  info:'Qué construye: la CAPACIDAD LOGÍSTICA. Clasificación ágil de devoluciones y cambios, y despacho desde puntos cercanos al cliente.\n\nCuándo importa: cuanto más vendes por canales directos y marketplaces, más devoluciones y más carga logística. Si el volumen supera tu capacidad, sube la tasa de devolución y baja la eficiencia de fulfillment.\n\nCuidado: es la capacidad que más rápido se desgasta.'},
+ {id:'s3',cap:'app',name:'3. App móvil, Club de Corredores y lealtad',short:'App y comunidad',col:'#7c3aed',
+  info:'Qué construye: la CAPACIDAD DE COMUNIDAD. Una base de clientes que vuelve sin que pagues publicidad cada vez.\n\nQué mejora: reduce el CAC (costo de adquisición de cliente), sube el LTV (valor de vida del cliente) y baja las devoluciones con herramientas de talla.\n\nCuidado: toma tiempo y un CDP (plataforma de datos de clientes) fuerte la potencia.'},
+ {id:'s4',cap:null,name:'4. Publicidad digital (Google, Meta, TikTok)',short:'Publicidad',col:'#f59e0b',
+  info:'Qué hace: trae tráfico y ventas ESTE año. No construye capacidad: si dejas de gastar, el efecto desaparece.\n\nCuidado: cada dólar adicional rinde menos (saturación) y encarece cada cliente. Cuando Apple limita el rastreo, la pauta de terceros rinde menos y cuesta más, salvo que tengas datos propios que la compensen.'},
+ {id:'s5',cap:'store',name:'5. Transformación del personal de tienda',short:'Tienda',col:'#16a34a',
+  info:'Qué construye: la CAPACIDAD EN TIENDA. Entrena al personal para asistir compras móviles, atender cambios y llevar calzado a vestidores.\n\nQué mejora: la experiencia física, las devoluciones atendidas en tienda y, junto con la app y la plataforma, la integración omnicanal (Store Mode).'},
+ {id:'s6',cap:'data',name:'6. Gobernanza de datos y First-Party Data',short:'Datos propios',col:'#db2777',
+  info:'Qué construye: la CAPACIDAD DE DATOS PROPIOS (First-Party Data: los que el cliente te da directamente).\n\nQué mejora: amortigua el golpe de los cambios de privacidad, baja el CAC y alimenta la personalización. Se desgasta lento: es una inversión de largo plazo.'}
+];
+const CAPNAMES = {plat:'Plataforma digital',logi:'Logística',app:'App y comunidad',data:'Datos propios',store:'Experiencia en tienda',ws:'Relación con mayoristas'};
+const POST = {
+ 1:{t:'Postura A: Desintermediación Agresiva DTC',d:'Recortar mayoristas no estratégicos y concentrar las ventas en la app y web propias para capturar First-Party Data y margen.',p:'Más margen por unidad y más datos propios',n:'Poca presencia en tiendas, la confianza de los mayoristas se pierde rápido y la competencia ocupa el espacio. Exige plataforma y logística fuertes',short:'Postura A (DTC agresivo)'},
+ 2:{t:'Postura B: Alianza Híbrida Selectiva',d:'Mantener mayoristas clave con acuerdos de inventario conectado, usándolos como vitrina física e incentivando el registro en la app propia.',p:'Mantiene alcance y relaciones; protege la cuota',n:'Menos margen por unidad y datos propios que crecen más lento',short:'Postura B (Alianza híbrida)'},
+ 3:{t:'Postura C: Dependencia Total de Marketplaces',d:'Vender masivamente por Amazon y agregadores para asegurar rotación de volumen, asumiendo comisiones y pérdida de datos.',p:'Volumen rápido sin construir canales propios',n:'Comisiones altas, casi cero datos propios y dependencia de un tercero',short:'Postura C (Marketplaces)'}
+};
+const CDPN = {lakehouse:'CDP en tiempo real',crm_suite:'CRM suite tradicional',sql_silos:'Bases SQL por país'};
+const ARCHN = {event_driven:'APIs Event-Driven',hybrid_api:'Integración híbrida por lotes',legacy_erp:'ERP heredado'};
+
+const YEARS = {
+ 1:{title:'Desintermediación',
+  pre:`<b>📖 Pre-lectura obligatoria (Nike Investor Relations, 2020):</b><br>En 2020, con las tiendas cerradas por la pandemia, Nike aceleró su plan <b>Consumer Direct Acceleration (CDA, aceleración de la venta directa al consumidor)</b>: recortar mayoristas para vender directo en sus apps y capturar todo el margen.<br>🔗 <a href="${LINK1}" target="_blank">Leer comunicado oficial de Nike: Consumer Direct Acceleration</a>`,
+  scen:`<b>🚨 AÑO 1: EL DILEMA DE LA DESINTERMEDIACIÓN</b><br>Gran parte de los ingresos depende de mayoristas (Amazon, Foot Locker). Exigen descuentos, retienen los datos de los clientes y amenazan con favorecer a competidores. La tienda web actual es lenta y no soporta inventario sincronizado, justo cuando la pandemia empuja la demanda digital.`,
+  alerts:['La pandemia cierra tiendas: la demanda digital se dispara. Una plataforma débil se satura y pierde ventas.','Recortar mayoristas de golpe deteriora la relación con ellos y deja estantes vacíos.','Vender directo genera datos y usuarios de la app casi sin costo adicional.']},
+ 2:{title:'Logística y devoluciones',
+  pre:`<b>🎬 Análisis obligatorio: la crisis de devoluciones del e-commerce:</b><br>El éxito del comercio electrónico trajo un volumen de devoluciones muy superior al de las tiendas físicas, con costos de flete y reacondicionamiento que se comen el margen.<br>🔗 <a href="https://nrf.com/media-center/press-releases/retail-returns-increased-761-billion-2021-result-overall-sales-growth" target="_blank">Leer reporte de la NRF (National Retail Federation): las devoluciones del comercio minorista</a>`,
+  scen:`<b>🚨 AÑO 2: LA PESADILLA DE LAS DEVOLUCIONES Y EL FULFILLMENT</b><br>El tráfico web creció, pero una parte enorme del calzado se devuelve por problemas de talla y calce. Cada devolución cuesta en fletes y reacondicionamiento, y los almacenes están saturados. Hay que equilibrar la asesoría digital de talla con la infraestructura física de cambios.`,
+  alerts:['Las devoluciones por talla se disparan. El volumen directo exige logística proporcional.','El mercado sigue favoreciendo lo digital, pero se acerca un cambio de privacidad.','Los competidores empiezan a ocupar estantes que dejaron vacíos.']},
+ 3:{title:'Privacidad y CAC',
+  pre:`<b>🎬 Análisis obligatorio: el muro de privacidad de Apple (iOS 14.5):</b><br>Apple restringió el rastreo publicitario (App Tracking Transparency). Meta estimó un impacto de unos $10 mil millones en sus ingresos de 2022 y la publicidad digital se encareció para todos. Quien tenía comunidad y datos propios resistió mejor.<br>🔗 <a href="https://www.youtube.com/watch?v=EVW4xPxJxv8" target="_blank">Ver análisis: el impacto de Apple en la publicidad digital</a>`,
+  scen:`<b>🚨 AÑO 3: EL MURO DEL COSTO DE ADQUISICIÓN (CAC) Y LA PRIVACIDAD</b><br>Apple y Google restringieron el rastreo. Conseguir un cliente nuevo cuesta mucho más y la pauta rinde menos. O se construye una comunidad directa con datos propios, o la publicidad devora las ganancias operativas.`,
+  alerts:['La pauta de terceros se encarece y rinde menos. Los datos propios amortiguan el golpe.','La demanda digital deja de crecer por sí sola.','Los competidores ya tienen una base en los estantes que perdiste.']},
+ 4:{title:'Omnicanalidad (Store Mode)',
+  pre:`<b>📄 Análisis obligatorio: el giro de Nike (regreso a mayoristas, 2024–2025):</b><br>En 2024 Nike reconoció que recortar mayoristas fue un error: perdió presencia física frente a On Running y HOKA, las ventas cayeron y cambió el CEO. Reconstruyó alianzas con mayoristas.<br>🔗 <a href="https://www.retaildive.com/news/nike-sales-fall-rebuild-wholesale-partnerships/736175/" target="_blank">Leer artículo de Retail Dive: Partners feel we turned our back on them</a><br>🔗 <a href="https://straightforward.design/how-nike-lost/" target="_blank">Leer artículo: How Nike Lost it</a><br>🎥 <a href="https://www.cnbc.com/video/2026/10/01/whartonas-americus-reed-on-nike-the-brand-is-something-that-has-to-live-and-breathe-within-the-community.html" target="_blank" rel="noopener">Ver video de CNBC (oct 2026): Americus Reed, profesor de Wharton, sobre Nike y su regreso a la comunidad</a> <i>(no es un video incrustado: se abre en una pestaña nueva de CNBC y hay que dar clic en play)</i>`,
+  scen:`<b>🚨 AÑO 4: LA FUSIÓN OMNICANAL 'STORE MODE'</b><br>El retail físico renace: los clientes visitan las tiendas pero exigen la agilidad de la app. Hay que sincronizar el inventario físico con la app para permitir escaneo en estante, solicitud de probador y pago sin filas, sin descuidar a los socios mayoristas.`,
+  alerts:['Los clientes regresan a las tiendas. Gana quien integra tienda, app y plataforma.','On y HOKA siguen ocupando estantes: la presencia física importa.','Las tiendas de mayoristas son aliadas para recuperar alcance.']}
+};
+const LEVEL = p => p>=85?'Nivel 4 (Driving / Impulsor)':p>=60?'Nivel 3 (Engaging / Involucrado)':p>=35?'Nivel 2 (Caring / Atento)':'Nivel 1 (Available / Pasivo)';
+
+let year = 1, state = E.initialState();
+let dec = {s1:0,s2:0,s3:0,s4:0,s5:0,s6:0,posture:1,cdp:'lakehouse',arch:'event_driven'};
+let results = {}, attempts = {1:0,2:0,3:0,4:0}, view = null, readOk = false;
+const $ = id => document.getElementById(id);
+const f1 = x => x.toFixed(1), r0 = x => Math.round(x);
+const fmtK = k => '$' + (k*1000).toLocaleString();
+
+function showInfo(t,b){ $('mt').innerText=t; $('mb').innerText=b; $('modal').style.display='flex'; }
+function closeInfo(){ $('modal').style.display='none'; }
+
+/* ---------- KPIs ---------- */
+function renderKPIs(cur, prev){
+  const items = [
+   {t:'Cuota de mercado',v:f1(cur.share)+'%',s:'Sector calzado global',k:'share',up:true,u:'%'},
+   {t:'Margen operativo (EBITDA)',v:f1(cur.margin)+'%',s:'EBITDA = ganancia operativa antes de intereses, impuestos y depreciación',k:'margin',up:true,u:'%'},
+   {t:'Tasa devolución y fricción',v:f1(cur.friction)+'%',s:'Fricción en fulfillment',k:'friction',up:false,u:'%'},
+   {t:'Costo de adquisición (CAC)',v:'$'+r0(cur.cac)+' USD',s:'CAC = costo de conseguir un cliente nuevo',k:'cac',up:false,u:''},
+   {t:'Ingresos netos anuales',v:'$'+r0(cur.rev)+' M',s:'Total canales',k:'rev',up:true,u:''},
+   {t:'Valor de vida del cliente (LTV)',v:'$'+r0(cur.ltv)+' USD',s:'LTV = valor total que deja un cliente en su vida',k:'ltv',up:true,u:''},
+   {t:'Eficiencia fulfillment',v:r0(cur.fulf)+'%',s:'Preparar y entregar pedidos',k:'fulf',up:true,u:'%'},
+   {t:'Madurez digital DX',v:LEVEL(cur.dx),s:'DX = madurez digital · Puntaje: '+r0(cur.dx)+' / 100',k:'dx',up:true,u:' pts'}
+  ];
+  $('kpis').innerHTML = items.map(i=>{
+    let d='';
+    if(prev){ const df=cur[i.k]-prev[i.k]; const good=i.up?df>0.05:df<-0.05; const flat=Math.abs(df)<=0.05;
+      d=`<div class="d ${flat?'flat':(good?'up':'down')}">${df>0?'+':''}${i.k==='cac'||i.k==='rev'||i.k==='ltv'?r0(df):f1(df)}${i.u} vs año anterior</div>`; }
+    return `<div class="kpi"><div class="t">${i.t}</div><div class="v" style="${i.k==='dx'?'font-size:1.05rem':''}">${i.v}</div><div class="s">${i.s}</div>${d}</div>`;
+  }).join('');
+}
+
+/* ---------- Briefing ---------- */
+function renderBriefing(){
+  const Y = YEARS[year], O = E.OBJECTIVES[year];
+  const goals = O.goals.map(g=>`<div class="goal"><span>${g.label}</span><b>${state[g.k]!==undefined?fmtV(g.k,state[g.k]):''} → ${g.op==='<='?'≤':'≥'} ${fmtV(g.k,g.v)}</b></div>`).join('');
+  const compNote = state.comp>0.4 ? `<li>Competidores (On, HOKA) mantienen unos <b>${f1(state.comp)} puntos de cuota</b> que antes eran tuyos.</li>` : '';
+  $('briefing').innerHTML = `
+   <div class="card">${Y.pre}<br><br><label style="font-weight:bold;cursor:pointer"><input type="checkbox" id="chk" ${readOk?'checked':''} onchange="readOk=this.checked;refreshExec()"> He leído y analizado el caso con mi equipo para iniciar las decisiones del Año ${year}.</label></div>
+   <div class="scenario">${Y.scen}</div>
+   <div class="two">
+     <div class="box"><h3>🌍 Panorama del mercado este año</h3><ul>${Y.alerts.map(a=>`<li>${a}</li>`).join('')}${compNote}</ul></div>
+     <div class="box"><h3>🎯 Objetivos del Año ${year}: ${O.title}</h3>${goals}<div class="hint" style="margin-top:6px">Valor actual → meta. Al final del año verán qué tan cerca quedaron.</div></div>
+   </div>`;
+}
+function fmtV(k,v){ if(k==='cac'||k==='ltv') return '$'+r0(v); if(k==='rev') return '$'+r0(v)+' M'; if(k==='dx') return r0(v)+' pts'; return f1(v)+'%'; }
+
+/* ---------- Decisiones ---------- */
+function renderDecision(){
+  const sl = PILLARS.map(p=>`
+   <div class="slc"><label><span>${p.name} <button class="btn-i" onclick="showInfo('${p.short}', PILLARS.find(x=>x.id==='${p.id}').info)">i</button></span><span class="amt" id="v-${p.id}">$0</span></label>
+   <input type="range" id="${p.id}" min="0" max="600" step="25" value="${dec[p.id]}" oninput="upd()">
+   <div class="cap" id="c-${p.id}"></div></div>`).join('');
+  const ch = [1,2,3].map(n=>{ const m=E.MIX[n]; return `
+   <div class="ch ${dec.posture===n?'sel':''}" id="p${n}" onclick="setPost(${n})"><div class="ti">${POST[n].t}</div><div class="de">${POST[n].d}</div>
+   <div class="mix"><span style="background:#2563eb;width:${m.d*100}%">${m.d>=.12?r0(m.d*100)+'%':''}</span><span style="background:#16a34a;width:${m.w*100}%">${m.w>=.12?r0(m.w*100)+'%':''}</span><span style="background:#f59e0b;width:${m.m*100}%">${m.m>=.12?r0(m.m*100)+'%':''}</span></div>
+   <div class="legend">🟦 Directo (web y app) · 🟩 Mayoristas · 🟧 Marketplaces</div>
+   <div class="trade"><b class="p">A favor:</b> ${POST[n].p}.<br><b class="n">En contra:</b> ${POST[n].n}.</div></div>`; }).join('');
+  $('decision').innerHTML = `
+   <div class="budget"><span>PRESUPUESTO ESTRATÉGICO DISPONIBLE PARA ESTE AÑO:</span><span id="rem" style="font-size:1.2rem;color:var(--navy)">$1,000,000</span></div>
+   <div class="bbar" id="bbar"></div>
+   <div class="st"><span>📊 1. Asignación de capital en 6 pilares operativos <span class="hint">· la barra azul muestra cómo quedaría cada capacidad al cierre del año</span></span><button class="mini" onclick="resetB()">🧹 Resetear presupuesto a $0</button></div>
+   <div class="sl">${sl}</div>
+   <div class="st"><span>⚖️ 2. Postura comercial y gobernanza de canal <button class="btn-i" onclick="showInfo('Postura de canales','Define por qué canales vende Nike este año: directo (web y app propias), mayoristas (tiendas de terceros) o marketplaces (Amazon y similares). Cada mezcla cambia el margen por unidad, los datos que capturas, tu presencia física y la confianza de los mayoristas, que se pierde rápido y se recupera lento.')">i</button></span></div>
+   <div class="choices">${ch}</div>
+   <div class="box" style="margin-top:12px"><div class="barlab"><b>🤝 Relación con mayoristas</b><span id="wsl"></span></div><div class="capbar"><div class="a" id="ws-a"></div><div class="b" id="ws-b"></div></div><div class="hint" style="margin-top:4px">Se construye con el tiempo: la Postura B la fortalece, A y C la desgastan.</div></div>
+   <div class="st"><span>🛠️ 3. Decisiones avanzadas de arquitectura de TI (Tecnologías de Información) <button class="btn-i" onclick="showInfo('Arquitectura de TI','No dan puntos directos: actúan como multiplicadores. Una buena arquitectura hace que cada dólar invertido en los pilares rinda más, pero se paga todos los años, aunque no inviertas en nada más.')">i</button></span></div>
+   <div class="adv"><div><label>Plataforma de datos de clientes:</label><select id="cdp" onchange="upd()">
+     <option value="lakehouse">CDP (Customer Data Platform) en tiempo real · $150k por año</option>
+     <option value="crm_suite">CRM (gestión de la relación con clientes) suite tradicional · $75k por año</option>
+     <option value="sql_silos">Bases de datos SQL locales por país · $0 (datos fragmentados)</option></select><div class="fx" id="fx-cdp"></div></div>
+   <div><label>Arquitectura de integración de inventario:</label><select id="arch" onchange="upd()">
+     <option value="event_driven">Microservicios y APIs Event-Driven (por eventos) en la nube · $150k por año</option>
+     <option value="hybrid_api">Integración híbrida por lotes (ETL diario) · $50k por año</option>
+     <option value="legacy_erp">ERP heredado sin APIs en vivo · $0</option></select><div class="fx" id="fx-arch"></div></div></div>
+   <button class="exec" id="exec" onclick="runYear()" disabled>Simular ejecución anual y generar informe ➔</button>`;
+  $('cdp').value = dec.cdp; $('arch').value = dec.arch;
+  upd();
+}
+function setPost(n){ dec.posture=n; [1,2,3].forEach(i=>$('p'+i).classList.toggle('sel',i===n)); upd(); }
+function resetB(){ PILLARS.forEach(p=>{$(p.id).value=0;}); upd(); }
+const CDPFX={lakehouse:'Une los datos de cada cliente en tiempo real. Potencia la capacidad de datos y la app (+30%).',crm_suite:'Funciona, pero es rígido. Efecto normal.',sql_silos:'Datos fragmentados: la capacidad de datos y la app rinden 30% menos.'};
+const ARCHFX={event_driven:'Sincroniza inventario al instante. Potencia plataforma, logística y tienda (+25%).',hybrid_api:'Efecto normal. Sincroniza una vez al día.',legacy_erp:'Rinde 25% menos y se envejece: plataforma y logística se desgastan más rápido.'};
+function upd(){
+  PILLARS.forEach(p=>{ dec[p.id]=parseInt($(p.id).value); $('v-'+p.id).innerText=fmtK(dec[p.id]); });
+  dec.cdp=$('cdp').value; dec.arch=$('arch').value;
+  $('fx-cdp').innerText=CDPFX[dec.cdp]; $('fx-arch').innerText=ARCHFX[dec.arch];
+  const spend=E.spendOf(dec), rem=1000-spend;
+  $('rem').innerText='$'+(rem*1000).toLocaleString(); $('rem').style.color=rem<0?'var(--bad)':'var(--navy)';
+  const segs=PILLARS.map(p=>[dec[p.id],p.col]).concat([[E.techCost(dec),'#475569']]);
+  $('bbar').innerHTML=segs.map(([v,c])=>`<div style="width:${Math.max(0,v)/10}%;background:${c}"></div>`).join('');
+  const cs=E.capsStep(state,dec);
+  PILLARS.forEach(p=>{
+    const el=$('c-'+p.id);
+    if(p.cap){ const a=state.caps[p.cap], b=cs.c1[p.cap];
+      el.innerHTML=`${CAPNAMES[p.cap]}: <b>${r0(a)}</b> → <b style="color:${b<a?'var(--bad)':'var(--blue)'}">${r0(b)}</b> <span class="hint">de 100</span><div class="capbar"><div class="a" style="width:${a}%"></div><div class="b ${b<a?'neg':''}" style="width:${b}%"></div></div>`; }
+    else { const v=dec.s4; el.innerHTML=`Efecto solo este año. ${v===0?'Sin pauta no hay tráfico pagado.':v>300?'⚠️ Ya rinde poco y encarece cada cliente.':'Rinde bien con gasto moderado.'}`; }
+  });
+  const wa=state.caps.ws, wb=cs.c1.ws; $('wsl').innerHTML=`<b>${r0(wa)}</b> → <b style="color:${wb<wa?'var(--bad)':'var(--ok)'}">${r0(wb)}</b> de 100`;
+  $('ws-a').style.width=wa+'%'; $('ws-b').style.width=wb+'%'; $('ws-b').classList.toggle('neg',wb<wa);
+  refreshExec();
+}
+function refreshExec(){ const b=$('exec'); if(!b) return; const over=E.spendOf(dec)>1000; b.disabled=over||!readOk; b.innerText=over?'⚠️ El presupuesto excede $1,000,000: reduzcan alguna inversión':(!readOk?'Marquen la casilla de pre-lectura para continuar':'Simular ejecución anual y generar informe ➔'); }
+
+/* ---------- Ejecutar ---------- */
+function runYear(){
+  if(E.spendOf(dec)>1000) return;
+  attempts[year]++;
+  const r = E.stepYear(state, {...dec});
+  const ev = E.evaluate(year, state, r.next);
+  results[year] = {dec:{...dec}, start:state, next:r.next, detail:r.detail, ev, attempt:attempts[year]};
+  view = results[year];
+  $('briefing').style.display='none'; $('decision').style.display='none';
+  renderKPIs(r.next, state);
+  renderDebrief();
+}
+function zoneOf(p, met){ if(met) return {n:'Meta lograda',c:'#16a34a'}; if(p<=0) return {n:'Retrocedió',c:'#dc2626'}; if(p<.5) return {n:'Frío',c:'#3b82f6'}; if(p<.9) return {n:'Tibio',c:'#eab308'}; return {n:'Caliente',c:'#f97316'}; }
+
+function explain(r){
+  const d=r.detail,k=d.k,t=d.t,dc=r.dec,T=E.TIME[t],o=[];
+  const add=(c,h)=>o.push(`<li class="${c}">${h}</li>`);
+  if(t<=2){
+    const lost=r0((1-k.conv)*100);
+    if(k.conv>=0.97) add('good',`<b>Plataforma:</b> con una capacidad efectiva de ${r0(k.plat)} soportó el pico de demanda digital sin perder ventas.`);
+    else add('bad',`<b>Plataforma:</b> la capacidad efectiva fue ${r0(k.plat)} y la demanda digital pedía unos ${r0(k.needed)}. La tienda web se saturó y se perdió cerca de ${lost}% de la conversión (ventas que no se concretaron).`);
+  }
+  if(d.gap>0.005) add('bad',`<b>Presencia física:</b> la postura dejó poca presencia en tiendas de terceros (índice ${k.presence.toFixed(2)} contra un mínimo de 0.35). On y HOKA ocuparon ${f1(d.compGain)} puntos de cuota este año. En total ya mantienen ${f1(d.comp)} puntos que antes eran tuyos y recuperarlos toma años.`);
+  else add(d.comp>0.5?'warn':'good',`<b>Presencia física:</b> mantuviste presencia suficiente en tiendas aliadas y no cediste cuota nueva este año.${d.comp>0.5?` Aun así, arrastras ${f1(d.comp)} puntos que la competencia ocupó antes.`:''}`);
+  const w0=d.caps0.ws,w1=d.caps1.ws;
+  if(w1<w0-1) add('warn',`<b>Relación con mayoristas:</b> bajó de ${r0(w0)} a ${r0(w1)}. La confianza se pierde rápido y se recupera lento.`);
+  else if(w1>w0+1) add('good',`<b>Relación con mayoristas:</b> subió de ${r0(w0)} a ${r0(w1)}, lo que fortalece tu alcance en tiendas.`);
+  if(k.overload>0.05) add('bad',`<b>Logística:</b> el volumen de canales directos y marketplaces superó tu capacidad logística en ${r0(k.overload*100)}%. Por eso subió la tasa de devolución y bajó la eficiencia de fulfillment.`);
+  else add('good',`<b>Logística:</b> la capacidad (${r0(k.logi)}) alcanzó para el volumen del año.`);
+  if(t>=2){ const hit=r0(T.priv*100*(1-0.7*k.data/100)); 
+    add(k.data>=45?'good':'warn',`<b>CAC y privacidad:</b> la pauta de terceros se encareció ${hit}% por los cambios de privacidad. Tu capacidad de datos propios (${r0(k.data)}) ${k.data>=45?'amortiguó buena parte del golpe':'dejó poco colchón'}. Cerca de ${r0(k.organic*100)}% de tus clientes llegó de forma orgánica, sin pagar publicidad.`); }
+  if(dc.s4>300) add('warn',`<b>Publicidad:</b> más de $300k en pauta ya rinde poco: cada cliente adicional sale más caro.`);
+  if(k.omni>0.35) add('good',`<b>Omnicanalidad:</b> plataforma, app y tienda trabajando juntas con presencia física sólida elevaron las ventas (índice de integración ${k.omni.toFixed(2)}).`);
+  else if(t>=3) add('warn',`<b>Omnicanalidad:</b> plataforma, app y tienda todavía no funcionan como un solo sistema (índice ${k.omni.toFixed(2)}). Este índice sube cuando las tres capacidades crecen a la vez y hay presencia física.`);
+  const p=d.parts;
+  add('',`<b>Dónde se fue el margen (por cada $100 de ingresos):</b> margen bruto de canales ${f1(p.g)}; devoluciones −${f1(p.ret)}; manejo logístico −${f1(p.hand)}; adquisición de clientes −${f1(p.mkt)}; costos fijos −${f1(p.fixed)}; costo del programa de inversión −${f1(p.program)}; resultado ${f1(r.next.margin)}%.`);
+  let weak=null,wv=999; ['plat','logi','app','data','store'].forEach(c=>{ if(d.caps1[c]<wv){wv=d.caps1[c];weak=c;} });
+  add('',`<b>Capacidad más débil al cierre:</b> ${CAPNAMES[weak]} (${r0(wv)} de 100). El puntaje de madurez DX sube cuando las cinco capacidades crecen parejas, no cuando una sola se dispara.`);
+  add('',`<b>Efecto rezagado:</b> lo invertido este año rindió ~60% ahora y el resto madura el próximo año. Las capacidades también se desgastan si no se mantienen.`);
+  return o.join('');
+}
+
+/* ---------- Debrief ---------- */
+function renderDebrief(){
+  const r=view, ev=r.ev, O=E.OBJECTIVES[year];
+  const sz=zoneOf(ev.score/100, ev.allMet);
+  const zones=[{n:'Frío',s:'lejos',c:'#3b82f6',on:ev.score<50},{n:'Tibio',s:'a medio camino',c:'#eab308',on:ev.score>=50&&ev.score<80},{n:'Caliente',s:'casi lo logran',c:'#f97316',on:ev.score>=80&&!ev.allMet},{n:'Meta lograda',s:'3 de 3 objetivos',c:'#16a34a',on:ev.allMet}];
+  const rows=ev.rows.map(x=>{ const z=zoneOf(x.p,x.met), w=Math.max(0,Math.min(1,x.p))*100;
+    return `<div class="prog"><div class="l"><span><b>${x.goal.label}</b> · ${fmtV(x.goal.k,x.start)} → ${fmtV(x.goal.k,x.val)} <span class="hint">(meta ${x.goal.op==='<='?'≤':'≥'} ${fmtV(x.goal.k,x.goal.v)})</span></span><b style="color:${z.c}">${z.n}</b></div><div class="pbar"><i style="width:${w}%;background:${z.c}"></i><u></u></div></div>`; }).join('');
+  const caps=['plat','logi','app','data','store','ws'].map(c=>{ const a=r.detail.caps0[c],b=r.detail.caps1[c];
+    return `<div class="barrow"><div class="barlab"><span>${CAPNAMES[c]}</span><b>${r0(a)} → <span style="color:${b<a?'var(--bad)':'var(--ok)'}">${r0(b)}</span></b></div><div class="track"><div class="p" style="width:${a}%"></div><div class="c" style="width:${b}%;background:${b<a?'#dc2626':'#2563eb'}"></div></div></div>`; }).join('');
+  $('debrief').style.display='block';
+  $('debrief').innerHTML=`<div class="debrief">
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap"><span style="font-size:1.35rem;font-weight:bold;color:var(--navy)">📋 INFORME EJECUTIVO: RESULTADOS DEL AÑO ${year}</span><span class="badge">AÑO ${year} · intento ${r.attempt}</span></div>
+   <div class="tabs"><div class="tab on" onclick="tab(0)">📑 1. Balance de impacto</div><div class="tab" onclick="tab(1)">📊 2. Comparativa vs. año anterior</div><div class="tab" onclick="tab(2)">📈 3. Evolución histórica</div><div class="tab" onclick="tab(3)">🗒️ 4. Bitácora (Tablas 1 y 2)</div></div>
+   <div class="tc on" id="t0">
+     <div class="box" style="margin-bottom:12px"><h3>🎯 Objetivos del año: ${O.title} · Puntaje ${ev.score}/100</h3><div class="zones">${zones.map(z=>`<div class="zone ${z.on?'on':''}" style="border-color:${z.c};background:${z.on?z.c:'#fff'};${z.on?'':'color:'+z.c}">${z.on?'▶ ':''}${z.n}<small>${z.s}</small></div>`).join('')}</div>${rows}</div>
+     <div class="two"><div><div class="st" style="margin-top:0">🔍 ¿Por qué pasó esto?</div><ul class="why">${explain(r)}</ul></div>
+     <div><div class="st" style="margin-top:0">🏗️ Capacidades de la empresa <span class="hint">gris: inicio · color: cierre</span></div><div class="box">${caps}</div></div></div>
+   </div>
+   <div class="tc" id="t1">${compareHtml()}</div>
+   <div class="tc" id="t2"><div class="chart"><svg id="svg"></svg><div style="text-align:center;font-size:.85rem;margin-top:6px"><b style="color:var(--ok)">🟩 Margen operativo (%)</b> &nbsp; <b style="color:var(--blue)">🟦 Cuota de mercado (%)</b> &nbsp; <b style="color:#7c3aed">🟪 Madurez DX (÷10)</b></div></div></div>
+   <div class="tc" id="t3">${bitacoraHtml()}</div>
+   <div style="margin:14px 0"><button class="cp" id="nikebtn" onclick="toggleNike()" style="font-size:1rem;padding:10px 16px"></button><div id="nikebox"></div></div>
+   <div id="gate"></div></div>`;
+  renderGate(); renderNike();
+}
+
+/* ---------- Qué pasó realmente con Nike ---------- */
+const REAL={
+ 1:{fy:'FY2021 (jun 2020 – may 2021)',verdict:'Salió "bien"',col:'#16a34a',stats:[['Ingresos','+19%'],['Nike Direct','+32%'],['Ventas digitales','+64%'],['Margen bruto','44.8%'],['Utilidad neta','+126%']],
+  txt:'Con la pandemia y el plan "Consumer Direct Acceleration", Nike recortó cuentas mayoristas y volcó todo a su app y a nike.com. Los números de ese año lo premiaron: el mercado aplaudió la apuesta. Nadie vio todavía el costo: los competidores empezaron a ocupar el espacio que Nike dejó en los estantes.',
+  src:[['Nike: resultados e informes','https://investors.nike.com/investors/news-events-and-reports/'],['Nike: Consumer Direct Acceleration','https://investors.nike.com/news-events/press-releases/detail/78/nike-announces-senior-leadership-changes-to-unlock-future-growth-through-the-consumer-direct-acceleration']]},
+ 2:{fy:'FY2022 (jun 2021 – may 2022)',verdict:'Crece, pero se frena',col:'#d97706',stats:[['Ingresos','+5%'],['Nike Direct','+14%'],['Ventas digitales','+18%'],['Margen bruto','46.0%'],['Inventarios','+23%']],
+  txt:'El crecimiento se desaceleró fuerte. Los cuellos de botella logísticos y de inventario aparecieron: más producto parado en bodega, menos capacidad de entregar a tiempo. La apuesta digital seguía creciendo, pero ya no alcanzaba para sostener la marca.',
+  src:[['Nike: resultados e informes','https://investors.nike.com/investors/news-events-and-reports/']]},
+ 3:{fy:'FY2023 (jun 2022 – may 2023)',verdict:'Aparece la grieta',col:'#ea580c',stats:[['Ingresos','+10%'],['Nike Direct','+14%'],['Ventas digitales','+24%'],['Margen bruto','43.5% (−250 pb)'],['Utilidad neta','−16%']],
+  txt:'Crecieron las ventas digitales, pero el margen cayó: liquidar inventario y comprar tráfico más caro después de los cambios de privacidad de Apple y Meta (el costo de pauta se disparó) comió la ganancia. Más digital ya no significaba mejor negocio.',
+  src:[['Nike: resultados e informes','https://investors.nike.com/investors/news-events-and-reports/']]},
+ 4:{fy:'FY2024 – FY2026',verdict:'Corrección dolorosa',col:'#dc2626',stats:[['Nike Direct','$21.5B → $18.8B → $17.7B'],['Ventas digitales','−3% / −20% / −12%'],['Cambio de CEO','Oct 2024 (Elliott Hill)'],['Amazon','Regreso en 2025'],['Mayoristas FY26','+6%']],
+  txt:'Mientras Nike encogía su canal digital, rivales como On (+30%) y HOKA (+15.9%) ocupaban sus estantes. En 2024 el CEO John Donahoe reconoció que Nike "se desvió del mayorista un poco más de lo que pretendíamos". Nike cambió de CEO, volvió a Amazon y a sus socios mayoristas. La tecnología nunca fue el problema: amplificó una estrategia que había olvidado al cliente que compraba en otros canales.',
+  src:[['Nike: resultados e informes','https://investors.nike.com/investors/news-events-and-reports/']],video:['https://www.cnbc.com/video/2026/10/01/whartonas-americus-reed-on-nike-the-brand-is-something-that-has-to-live-and-breathe-within-the-community.html']}
+};
+let nikeOpen={};
+function toggleNike(){ nikeOpen[year]=!nikeOpen[year]; renderNike(); }
+function renderNike(){
+  const box=$('nikebox'); if(!box) return; const R=REAL[year], r=view, ev=r.ev;
+  $('nikebtn').innerText = nikeOpen[year] ? '🔼 Ocultar' : (ev.allMet ? '🎬 ¡Lo lograste! Ahora mira qué pasó con Nike' : '🎬 Ahora mira qué pasó con Nike este año');
+  if(!nikeOpen[year]){ box.innerHTML=''; return; }
+  const mine=`Tu camino: cuota ${f1(r.next.share)}% · margen ${f1(r.next.margin)}% · DX ${r0(r.next.dx)} pts · ${POST[r.dec.posture].short}.`;
+  box.innerHTML=`<div class="box" style="border-left:6px solid ${R.col};margin-top:10px"><h3 style="color:${R.col}">🏷️ Nike real · ${R.fy} — ${R.verdict}</h3>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">${R.stats.map(([a,b])=>`<div style="background:#f1f5f9;border-radius:8px;padding:8px 12px"><div style="font-size:.72rem;color:var(--mut)">${a}</div><b>${b}</b></div>`).join('')}</div>
+   <p>${R.txt}</p><p style="background:#eff6ff;padding:8px 12px;border-radius:8px"><b>${mine}</b> ${year===1?'Si te fuiste casi todo digital, hiciste lo mismo que Nike y tu resultado se parece al suyo: se ve bien. La pregunta es qué pasa cuando repites la fórmula.':year===4?'La lección: no gana quien más digital tiene, gana quien mantiene al cliente en todos los canales donde compra.':'Compara tu decisión con la de Nike: ¿qué ven ustedes que Nike no vio?'}</p>
+   ${R.video?`<p style="background:#fef3c7;padding:8px 12px;border-radius:8px">🎥 <b>¿Y hoy? Nike intenta volver a las tiendas.</b> <a href="${R.video[0]}" target="_blank" rel="noopener"><b>Ver video de CNBC con Americus Reed (Wharton)</b></a> <span class="hint">(se abre en una pestaña nueva; hay que dar clic en play)</span></p>`:''}
+   <div style="font-size:.8rem;color:var(--mut)">Fuentes: ${R.src.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${t}</a>`).join(' · ')}. DTC = Direct-to-Consumer (venta directa al consumidor); pb = puntos base.</div></div>`;
+}
+function tab(i){ document.querySelectorAll('.tab').forEach((e,j)=>e.classList.toggle('on',i===j)); document.querySelectorAll('.tc').forEach((e,j)=>e.classList.toggle('on',i===j)); if(i===2) drawChart(); }
+function compareHtml(){
+  const p=view.start,c=view.next;
+  const M=[['Cuota de mercado','share','%',true],['Margen operativo (EBITDA)','margin','%',true],['Tasa de devolución y fricción','friction','%',false],['Eficiencia fulfillment','fulf','%',true],['Costo de adquisición (CAC)','cac',' USD',false],['Valor de vida (LTV)','ltv',' USD',true],['Ingresos netos','rev',' M USD',true],['Madurez DX','dx',' pts',true]];
+  return `<p style="font-size:.88rem;color:var(--mut)">Gris: año anterior. Color: resultado actual (verde mejora, rojo empeora, amarillo sin cambio).</p>`+M.map(([l,k,u,up])=>{
+    const df=c[k]-p[k], flat=Math.abs(df)<=0.05, good=up?df>0:df<0, col=flat?'#d97706':(good?'#16a34a':'#dc2626'); const mx=Math.max(p[k],c[k],1)*1.15;
+    return `<div class="barrow"><div class="barlab"><span>${l}</span><span>${f1(p[k])}${u} → <b>${f1(c[k])}${u}</b> <b style="color:${col}">(${df>0?'+':''}${f1(df)})</b></span></div><div class="track" style="height:22px"><div class="p" style="width:${p[k]/mx*100}%;height:11px"></div><div class="c" style="width:${c[k]/mx*100}%;background:${col};top:11px;height:11px;border-radius:0 6px 6px 0"></div></div></div>`; }).join('');
+}
+function histPoints(){ const h=[{y:0,...E.initialState()}]; for(let y=1;y<=4;y++){ if(results[y]) h.push({y,...results[y].next}); } return h; }
+function drawChart(){
+  const h=histPoints(), svg=$('svg'), W=svg.clientWidth||700, H=290, pl=44,pr=20,pt=20,pb=34;
+  const vals=h.flatMap(d=>[d.margin,d.share,d.dx/10]); const mn=Math.min(0,Math.floor(Math.min(...vals)-1)), mx=Math.ceil(Math.max(...vals)+2);
+  const x=i=>pl+26+i*((W-pl-pr-40)/4), y=v=>H-pb-(v-mn)/(mx-mn)*(H-pt-pb);
+  let g=''; for(let i=0;i<=4;i++){ const v=mn+(mx-mn)/4*i; g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="#cbd5e1" stroke-dasharray="3,3"/><text x="${pl-6}" y="${y(v)+4}" font-size="10" fill="#64748b" text-anchor="end">${v.toFixed(0)}</text>`; }
+  const line=(k,c,f)=>`<polyline fill="none" stroke="${c}" stroke-width="3" points="${h.map((d,i)=>x(i)+','+y(f?f(d[k]):d[k])).join(' ')}"/>`+h.map((d,i)=>`<circle cx="${x(i)}" cy="${y(f?f(d[k]):d[k])}" r="4.5" fill="${c}" stroke="#fff" stroke-width="2"/><text x="${x(i)}" y="${y(f?f(d[k]):d[k])-9}" font-size="10" font-weight="bold" fill="${c}" text-anchor="middle">${f1(d[k])}${k==='dx'?'':'%'}</text>`).join('');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.innerHTML=g+`<line x1="${pl}" x2="${W-pr}" y1="${H-pb}" y2="${H-pb}" stroke="#94a3b8"/>`+line('margin','#16a34a')+line('share','#2563eb')+line('dx','#7c3aed',v=>v/10)+h.map((d,i)=>`<text x="${x(i)}" y="${H-10}" font-size="11" font-weight="bold" fill="#64748b" text-anchor="middle">Año ${d.y}</text>`).join('');
+}
+/* ---------- Bitácora: Tablas 1 y 2 de la guía ---------- */
+const GUIDEQ={1:'¿Por qué esta combinación evitó la saturación web y protegió el margen inicial?',2:'¿Cómo lograron contener la tasa de devolución y qué impacto tuvo en los almacenes?',3:'¿De qué manera enfrentaron el encarecimiento de la pauta publicitaria tras los cambios de privacidad?',4:'¿Cómo lograron la sincronización física-digital en tienda (Store Mode) sin descuidar a los socios mayoristas?'};
+function t1rows(){
+  const S=[E.initialState()]; for(let y=1;y<=4;y++) S.push(results[y]?results[y].next:null);
+  const R=[['Cuota de Mercado (%)',s=>f1(s.share)+'%'],['Margen Operativo EBITDA (%)',s=>f1(s.margin)+'%'],['Tasa de Devolución y Fricción (%)',s=>f1(s.friction)+'%'],['Costo de Adquisición - CAC ($ USD)',s=>'$'+r0(s.cac)+' USD'],['Ingresos Netos ($ M USD)',s=>'$'+r0(s.rev)+' M'],['Valor de Vida del Cliente - LTV ($ USD)',s=>'$'+r0(s.ltv)+' USD'],['Eficiencia de Fulfillment (%)',s=>r0(s.fulf)+'%'],['Nivel de Madurez DX (Puntaje / 100)',s=>LEVEL(s.dx).split(' (')[0]+' ('+r0(s.dx)+' pts)']];
+  return R.map(([l,f])=>[l].concat(S.map(s=>s?f(s):'')));
+}
+function t2rows(){
+  return [1,2,3,4].map(y=>{ const r=results[y]; if(!r) return ['Año '+y,'','','']; const d=r.dec;
+    let best=null,bv=-1; PILLARS.forEach(p=>{ if(d[p.id]>bv){bv=d[p.id];best=p;} });
+    const pil = bv>0 ? `${best.short} (${fmtK(bv)})` : 'Sin inversión';
+    const dc = `${POST[d.posture].short} + ${CDPN[d.cdp]} + ${ARCHN[d.arch]}`;
+    return ['Año '+y,pil,dc,GUIDEQ[y]]; });
+}
+function tsv(rows,head){ return [head].concat(rows).map(r=>r.join('\t')).join('\n'); }
+function bitacoraHtml(){
+  const h1=['Indicador estratégico','Año 0 (inicial)','Año 1 (Desintermediación)','Año 2 (Logística y devoluciones)','Año 3 (Privacidad y CAC)','Año 4 (Omnicanalidad Store Mode)'];
+  const h2=['Año','Pilar operativo crítico (mayor inversión)','Decisión de canales y arquitectura TI','Pregunta de justificación (la responden ustedes en el documento)'];
+  const tb=(h,rows)=>`<div style="overflow-x:auto"><table class="t"><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table></div>`;
+  return `<p style="font-size:.88rem">Estas tablas se llenan solas con su <b>último intento</b> de cada año. Cópienlas y péguenlas en las Tablas 1 y 2 de la guía. La <b>justificación gerencial</b> la escriben ustedes.</p>
+   <div style="font-weight:bold;color:var(--navy);margin:8px 0">TABLA 1: Matriz de desempeño y evolución de indicadores</div>${tb(h1,t1rows())}<button class="cp" onclick="copyT(1)">📋 Copiar Tabla 1</button>
+   <div style="font-weight:bold;color:var(--navy);margin:14px 0 8px">TABLA 2: Justificación gerencial de pilares y decisiones</div>${tb(h2,t2rows())}<button class="cp" onclick="copyT(2)">📋 Copiar Tabla 2</button><span id="cpmsg" class="hint"></span>`;
+}
+function copyT(n){
+  const txt = n===1 ? tsv(t1rows(),['Indicador estratégico','Año 0','Año 1','Año 2','Año 3','Año 4']) : tsv(t2rows(),['Año','Pilar operativo crítico','Decisión de canales y arquitectura TI','Pregunta']);
+  const ok=()=>{ $('cpmsg').innerText='✅ Copiada. Péguenla en Word o Excel.'; };
+  const fb=()=>{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');ok();}catch(e){$('cpmsg').innerText='Seleccionen y copien manualmente.';} ta.remove(); };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok,fb); else fb();
+}
+
+/* ---------- Gate: reintentar / desbloquear / final ---------- */
+function renderGate(){
+  const g=$('gate');
+  if(year>=4){
+    const s=view.next, win=s.margin>=18&&s.share>=22&&s.dx>=85;
+    g.innerHTML=`<div class="final"><div style="font-size:1.5rem;font-weight:bold;color:${win?'var(--ok)':'var(--navy)'}">${win?'🏆 ¡TRANSFORMACIÓN DIGITAL EXITOSA!':'🏁 SIMULACIÓN ESTRATÉGICA FINALIZADA'}</div>
+     <p style="font-size:1.02rem">Diagnóstico final: <b>${LEVEL(s.dx)}</b> (${r0(s.dx)}/100 pts)</p>
+     <div style="font-size:.92rem"><b>Margen:</b> ${f1(s.margin)}% (meta ≥ 18%) · <b>Cuota:</b> ${f1(s.share)}% (meta ≥ 22%) · <b>DX:</b> ${r0(s.dx)} (meta ≥ 85) · <b>Fricción:</b> ${f1(s.friction)}% · <b>LTV:</b> $${r0(s.ltv)}</div>
+     <p style="font-size:.88rem;color:var(--mut)">Puntajes por año: ${[1,2,3,4].map(y=>results[y]?`Año ${y}: ${results[y].ev.score}`:'').filter(Boolean).join(' · ')} · Intentos: ${[1,2,3,4].map(y=>attempts[y]).join(' / ')}</p></div>
+     <div class="box"><h3>🌎 ¿Y qué pasó en la vida real?</h3><div style="font-size:.88rem;line-height:1.5">Nike Direct (ventas propias) pasó de $21.5 mil millones en su año fiscal 2024 a $17.7 mil millones en el año fiscal 2026, con ventas digitales de −3%, −20% y −12% en esos años. En 2025 Nike regresó a Amazon y reconstruyó su relación con mayoristas. Comparen ese camino con el suyo: ¿en qué decisiones coincidieron y en cuáles se separaron?<br><span class="hint">Fuente: resultados anuales de Nike (FY2024 a FY2026). Los números del simulador son simulados, no datos reales.</span></div></div>
+     <div class="gate"><div class="act"><button class="retry" onclick="retry()">🔄 Reintentar Año 4</button></div>
+     <div style="background:#eff6ff;border:1px dashed var(--blue);border-radius:8px;padding:12px;margin-top:14px;color:var(--navy);font-size:.92rem">📸 <b>ENTREGABLE FINAL:</b> tomen una captura de pantalla completa de este tablero (indicadores y pestañas de resultados) y péguenla en <b>Microsoft Teams</b> y en su guía.</div></div>`;
+  } else {
+    g.innerHTML=`<div class="gate"><div style="font-weight:bold;color:var(--navy);font-size:1.1rem">🔒 BLOQUEO DE FASE GERENCIAL</div>
+     <div style="font-size:.86rem;color:var(--mut);margin-top:4px">Analicen los resultados y debatan en equipo. Si no quedaron conformes, pueden reintentar este año. De lo contrario, introduzcan la clave docente para habilitar el <b>Año ${year+1}</b>.</div>
+     <div class="act"><button class="retry" onclick="retry()">🔄 Reintentar Año ${year}</button><input class="pw" id="pw" placeholder="CLAVE DOCENTE"><button class="unlock" onclick="unlock()">Desbloquear siguiente año ➔</button></div><div id="pwmsg" style="color:var(--bad);font-size:.85rem;margin-top:8px"></div></div>`;
+  }
+}
+function retry(){
+  delete results[year]; view=null; $('debrief').style.display='none'; $('briefing').style.display='block'; $('decision').style.display='block';
+  renderKPIs(state,null); upd();
+}
+function unlock(){
+  if($('pw').value.trim().toUpperCase()!==keys[year]){ $('pwmsg').innerText='❌ Clave incorrecta. Esperen la validación del docente en clase.'; return; }
+  state=results[year].next; year++; readOk=false;
+  $('lbl-year').innerText='AÑO '+year+' DE 4';
+  $('debrief').style.display='none'; $('briefing').style.display='block'; $('decision').style.display='block';
+  renderKPIs(state,null); renderBriefing(); renderDecision(); window.scrollTo({top:0,behavior:'smooth'});
+}
+/* ---------- Inicio ---------- */
+renderKPIs(state,null); renderBriefing(); renderDecision();
+</script>
+</body>
+</html>
